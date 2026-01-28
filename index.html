@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LaunchAI | Validate & Build Your Empire</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        html { scroll-behavior: smooth; }
+        .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .gradient-text { background: linear-gradient(90deg, #60a5fa, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        @keyframes pulse-border { 0%, 100% { border-color: rgba(96, 165, 250, 0.2); } 50% { border-color: rgba(168, 85, 247, 1); } }
+        .analyzing-active { animation: pulse-border 1.5s infinite; border-width: 2px; }
+    </style>
+</head>
+<body class="bg-slate-950 text-white font-sans selection:bg-purple-500/30">
+
+    <nav class="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-white/5">
+        <div class="flex justify-between items-center px-8 py-4 max-w-7xl mx-auto">
+            <div class="text-2xl font-bold tracking-tighter cursor-pointer" onclick="window.scrollTo(0,0)">Launch<span class="text-blue-500">AI</span></div>
+            <div class="hidden md:flex space-x-8 text-sm font-medium text-slate-400">
+                <a href="#validator" class="hover:text-white transition">Validator</a>
+                <a href="#gems" class="hover:text-white transition">AI GEMS</a>
+                <a href="#pricing" class="hover:text-white transition">Pricing</a>
+            </div>
+            <a href="#pricing" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-full text-sm font-bold transition">Start Launching</a>
+        </div>
+    </nav>
+
+    <section id="validator" class="max-w-4xl mx-auto text-center pt-20 pb-32 px-4">
+        <h1 class="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight">Stop Guessing. <br><span class="gradient-text">Start Scaling.</span></h1>
+        <p class="text-slate-400 text-lg mb-12 max-w-2xl mx-auto">Validate your business idea for free. If it scores high, our AI Board of GEMS builds it for you in 30 days.</p>
+        
+        <div class="glass-card p-2 rounded-2xl shadow-2xl mb-8 border-white/10" id="inputContainer">
+            <div class="flex flex-col md:flex-row gap-2">
+                <input id="ideaInput" type="text" placeholder="Describe your business idea in a few words..." 
+                    class="flex-1 bg-transparent border-none focus:ring-0 px-6 py-4 text-lg outline-none">
+                <button onclick="analyzeIdea()" class="bg-white text-black font-bold px-8 py-4 rounded-xl hover:bg-blue-400 transition transform active:scale-95 shadow-lg shadow-blue-500/20">
+                    Validate My Idea
+                </button>
+            </div>
+        </div>
+
+        <div id="resultsArea" class="hidden glass-card p-8 rounded-2xl transition-all duration-700">
+            <div class="flex flex-col items-center">
+                <div class="relative w-32 h-32 flex items-center justify-center mb-4">
+                    <svg class="w-full h-full transform -rotate-90">
+                        <circle cx="64" cy="64" r="60" stroke="currentColor" stroke-width="8" fill="transparent" class="text-slate-800"/>
+                        <circle id="scoreCircle" cx="64" cy="64" r="60" stroke="currentColor" stroke-width="8" fill="transparent" 
+                            stroke-dasharray="377" stroke-dashoffset="377" class="text-blue-500 transition-all duration-[2000ms]"/>
+                    </svg>
+                    <span id="scoreText" class="absolute text-3xl font-bold">0</span>
+                </div>
+                <h3 id="verdictTitle" class="text-2xl font-bold mb-2">Analyzing Idea...</h3>
+                <p id="verdictDesc" class="text-slate-400 mb-8 max-w-md">Our OrchestratorAI is running market simulations...</p>
+                
+                <div class="w-full bg-slate-900/80 rounded-xl p-6 border border-white/5">
+                    <h4 class="text-left text-xs font-bold text-blue-400 uppercase tracking-widest mb-4">AI-Generated Roadmap (Locked)</h4>
+                    <div class="space-y-4 opacity-40 blur-[2px] select-none text-left">
+                        <div class="flex items-center gap-4"><div class="w-8 h-8 rounded bg-slate-800 flex items-center justify-center font-bold">01</div><p class="text-sm">LawyerAI: Filing LLC and Operating Agreement...</p></div>
+                        <div class="flex items-center gap-4"><div class="w-8 h-8 rounded bg-slate-800 flex items-center justify-center font-bold">02</div><p class="text-sm">MarketingAI: Generating 30-day viral content funnel...</p></div>
+                    </div>
+                    <div class="mt-8">
+                        <a href="#pricing" class="inline-block bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-4 rounded-xl font-bold hover:scale-105 transition shadow-xl shadow-purple-500/20">
+                            Unlock Your 30-Day Launch Plan
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>    <section id="gems" class="py-24 bg-slate-900/30 border-y border-white/5">
+        <div class="max-w-7xl mx-auto px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4">Your AI Executive Board</h2>
+                <p class="text-slate-400 max-w-2xl mx-auto">The Founder Tier unlocks a full suite of specialized GEMS. They don't just "chat"—they execute tasks across your business ecosystem.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                <div class="glass-card p-8 rounded-2xl border-white/5 hover:border-blue-500/40 transition group">
+                    <i class="fa-solid fa-lightbulb text-3xl text-yellow-400 mb-4 group-hover:scale-110 transition"></i>
+                    <h4 class="text-xl font-bold mb-2">MentorAI</h4>
+                    <p class="text-slate-400 text-sm leading-relaxed">Strategic vision. Analyzes market volatility to provide high-level pivots and growth strategy.</p>
+                </div>
+
+                <div class="glass-card p-8 rounded-2xl border-white/5 hover:border-blue-500/40 transition group">
+                    <i class="fa-solid fa-stopwatch text-3xl text-green-400 mb-4 group-hover:scale-110 transition"></i>
+                    <h4 class="text-xl font-bold mb-2">CoachAI</h4>
+                    <p class="text-slate-400 text-sm leading-relaxed">Performance tracking. Keeps you focused on $1,000/hr revenue-generating tasks daily.</p>
+                </div>
+
+                <div class="glass-card p-8 rounded-2xl border-white/5 hover:border-blue-500/40 transition group">
+                    <i class="fa-solid fa-user-tie text-3xl text-blue-400 mb-4 group-hover:scale-110 transition"></i>
+                    <h4 class="text-xl font-bold mb-2">SecretaryAI</h4>
+                    <p class="text-slate-400 text-sm leading-relaxed">Full Agentic. Manages your inbox, filters calls, and books sales meetings while you sleep.</p>
+                </div>
+
+                <div class="glass-card p-8 rounded-2xl border-white/5 hover:border-blue-500/40 transition group">
+                    <i class="fa-solid fa-calculator text-3xl text-red-400 mb-4 group-hover:scale-110 transition"></i>
+                    <h4 class="text-xl font-bold mb-2">AccountantAI</h4>
+                    <p class="text-slate-400 text-sm leading-relaxed">Syncs with Stripe/Bank to track margins, taxes, and runway in real-time. No more spreadsheets.</p>
+                </div>
+
+                <div class="glass-card p-8 rounded-2xl border-white/5 hover:border-blue-500/40 transition group">
+                    <i class="fa-solid fa-bullhorn text-3xl text-orange-400 mb-4 group-hover:scale-110 transition"></i>
+                    <h4 class="text-xl font-bold mb-2">MarketingAI</h4>
+                    <p class="text-slate-400 text-sm leading-relaxed">Growth engine. Deploys ad campaigns and creates 30-day viral social media schedules autonomously.</p>
+                </div>
+
+                <div class="glass-card p-8 rounded-2xl border-white/5 hover:border-blue-500/40 transition group">
+                    <i class="fa-solid fa-gavel text-3xl text-slate-300 mb-4 group-hover:scale-110 transition"></i>
+                    <h4 class="text-xl font-bold mb-2">LawyerAI</h4>
+                    <p class="text-slate-400 text-sm leading-relaxed">Bulletproof legal. Generates NDAs, Terms of Service, and LLC operating agreements in seconds.</p>
+                </div>
+            </div>
+
+            <div class="max-w-3xl mx-auto glass-card p-8 rounded-3xl border-purple-500/40 bg-gradient-to-br from-purple-900/10 to-transparent text-center">
+                <div class="inline-block p-4 rounded-full bg-purple-500/20 mb-4">
+                    <i class="fa-solid fa-brain text-4xl text-purple-400"></i>
+                </div>
+                <h4 class="text-2xl font-bold mb-2">The OrchestratorAI</h4>
+                <p class="text-slate-300 mb-0">The "Brain" that works in the background. It manages the communication between all GEMS, ensuring your business runs like a synchronized machine 24/7.</p>
+            </div>
+        </div>
+    </section>
+
+
+    <section id="pricing" class="py-24 max-w-5xl mx-auto px-8">
+        <div class="grid md:grid-cols-2 gap-8">
+            <div class="glass-card p-10 rounded-3xl border-2 border-slate-800 hover:border-blue-500 transition relative flex flex-col">
+                <h3 class="text-2xl font-bold mb-2">Founder Tier</h3>
+                <div class="text-4xl font-bold mb-6">$39 <span class="text-lg text-slate-500 font-normal">/mo</span></div>
+                <ul class="space-y-4 mb-8 text-slate-300 flex-grow">
+                    <li><i class="fa-solid fa-check text-blue-500 mr-2"></i> All 6 Core AI GEMS</li>
+                    <li><i class="fa-solid fa-check text-blue-500 mr-2"></i> Orchestrator Management</li>
+                    <li><i class="fa-solid fa-check text-blue-500 mr-2"></i> Step-by-Step Launch Plan</li>
+                </ul>
+                <button onclick="subscribe('Founder')" class="w-full py-4 rounded-xl bg-blue-600 font-bold hover:bg-blue-500 transition shadow-lg shadow-blue-600/20">Subscribe & Launch</button>
+            </div>
+
+            <div class="glass-card p-10 rounded-3xl border-2 border-purple-500 shadow-xl shadow-purple-500/10 flex flex-col relative">
+                <div class="absolute -top-4 right-8 bg-purple-500 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-tighter">Maximum Value</div>
+                <h3 class="text-2xl font-bold mb-2">Growth Tier</h3>
+                <div class="text-4xl font-bold mb-6">$39 <span class="text-lg text-slate-500 font-normal">/mo</span></div>
+                <ul class="space-y-4 mb-8 text-slate-300 flex-grow">
+                    <li><i class="fa-solid fa-check text-purple-500 mr-2"></i> Everything in Founder Tier</li>
+                    <li><i class="fa-solid fa-check text-purple-500 mr-2"></i> AI-Hiring Suite</li>
+                    <li><i class="fa-solid fa-check text-purple-500 mr-2"></i> Second Business Capability</li>
+                </ul>
+                <button onclick="subscribe('Growth')" class="w-full py-4 rounded-xl bg-purple-600 font-bold hover:bg-purple-500 transition shadow-lg shadow-purple-600/20">Get Growth Tier</button>
+            </div>
+        </div>
+    </section>
+    <script>
+         = document.getElementById('ideaInput').value;
+            const resultsArea = document.getElementById('resultsArea');
+            const scoreCircle = document.getElementById('scoreCircle');
+            const scoreText = document.getElementById('scoreText');
+            const inputContainer = document.getElementById('inputContainer');
+
+            if (!idea) {
+                alert("Please enter a business idea first!");
+                return;
+            }
+
+            // Start the "thinking" animation
+            inputContainer.classList.add('analyzing-active');
+            
+            // Show the results area and scroll to it
+            resultsArea.classList.remove('hidden');
+            resultsArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            let score = 0;
+            const targetScore = Math.floor(Math.random() * 25) + 72; 
+            
+            const interval = setInterval(() => {
+                if (score >= targetScore) {
+                    clearInterval(interval);
+                    inputContainer.classList.remove('analyzing-active');
+                    document.getElementById('verdictTitle').innerText = "Analysis Complete: High Potential";
+                    document.getElementById('verdictDesc').innerText = "Market demand is surging for this sector. Your custom 30-day roadmap has been generated.";
+                } else {
+                    score++;
+                    scoreText.innerText = score;
+                    const offset = 377 - (377 * score / 100);
+                    scoreCircle.style.strokeDashoffset = offset;
+                }
+            }, 20);
+        }
+ 
+
+function subscribe(tier) {
+    if (tier === 'Founder') {
+        window.location.href = "https://buy.stripe.com/fZu6oG8XJgRLaIu6Ov7Re01";
+    } else if (tier === 'Growth') {
+        window.location.href = "https://buy.stripe.com/cNi4gy6PB8lf3g22yf7Re02";
+    }
+}
+
+        
+        
+    </script>
+</body>
+</html>
