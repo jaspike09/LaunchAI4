@@ -15,68 +15,158 @@
     </style>
 </head>
 <body class="bg-slate-950 text-white font-sans selection:bg-purple-500/30">
+
     <nav class="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-white/5">
         <div class="flex justify-between items-center px-8 py-4 max-w-7xl mx-auto">
-            <div class="text-2xl font-bold tracking-tighter cursor-pointer" onclick="window.scrollTo(0,0)">Launch<span class="text-blue-500">AI</span></div>
+            <div class="text-2xl font-bold tracking-tighter">Launch<span class="text-blue-500">AI</span></div>
             <div class="hidden md:flex space-x-8 text-sm font-medium text-slate-400">
                 <a href="#validator" class="hover:text-white transition">Validator</a>
-                <a href="#gems" class="hover:text-white transition">AI GEMS</a>
+                <a href="#gems" class="hover:text-white transition">The GEMS</a>
                 <a href="#pricing" class="hover:text-white transition">Pricing</a>
             </div>
             <a href="#pricing" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-full text-sm font-bold transition">Start Launching</a>
         </div>
     </nav>
+
     <section id="validator" class="max-w-4xl mx-auto text-center pt-20 pb-32 px-4">
-        <h1 class="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight">Stop Guessing. <br><span class="gradient-text">Start Scaling.</span></h1>
+        <div class="inline-block px-4 py-1.5 mb-6 text-sm font-medium tracking-wide text-blue-400 uppercase bg-blue-400/10 rounded-full border border-blue-400/20">
+            Now in Beta: The 30-Day Empire Builder
+        </div>
+        <h1 class="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight leading-tight">
+            Don't just dream it.<br><span class="gradient-text">Deploy it with AI.</span>
+        </h1>
+        <p class="text-slate-400 text-lg mb-12 max-w-2xl mx-auto">
+            The world's first AI-powered business architect. We validate your idea, build your roadmap, and deploy your executive board in 30 days.
+        </p>
+        
         <div class="glass-card p-2 rounded-2xl shadow-2xl mb-8 border-white/10" id="inputContainer">
             <div class="flex flex-col md:flex-row gap-2">
-                <input id="ideaInput" type="text" placeholder="Describe your business idea..." class="flex-1 bg-transparent border-none focus:ring-0 px-6 py-4 text-lg outline-none text-white">
-                <button onclick="analyzeIdea()" class="bg-white text-black font-bold px-8 py-4 rounded-xl hover:bg-blue-400 transition">Validate My Idea</button>
+                <input id="ideaInput" type="text" placeholder="Describe your business idea (e.g. Dog Grooming SaaS)..." 
+                    class="flex-1 bg-transparent border-none focus:ring-0 px-6 py-4 text-lg outline-none text-white">
+                <button onclick="analyzeIdea()" class="bg-white text-black font-bold px-8 py-4 rounded-xl hover:bg-blue-400 transition transform active:scale-95 shadow-lg">
+                    Validate My Idea
+                </button>
             </div>
         </div>
-        <div id="resultsArea" class="hidden glass-card p-8 rounded-2xl">
+
+        <div id="resultsArea" class="hidden glass-card p-8 rounded-2xl border-blue-500/30">
             <div class="flex flex-col items-center">
                 <div class="relative w-32 h-32 flex items-center justify-center mb-4">
                     <svg class="w-full h-full transform -rotate-90">
                         <circle cx="64" cy="64" r="60" stroke="currentColor" stroke-width="8" fill="transparent" class="text-slate-800"/>
-                        <circle id="scoreCircle" cx="64" cy="64" r="60" stroke="currentColor" stroke-width="8" fill="transparent" stroke-dasharray="377" stroke-dashoffset="377" class="text-blue-500 transition-all duration-[2000ms]"/>
+                        <circle id="scoreCircle" cx="64" cy="64" r="60" stroke="currentColor" stroke-width="8" fill="transparent" 
+                            stroke-dasharray="377" stroke-dashoffset="377" class="text-blue-500 transition-all duration-[2000ms]"/>
                     </svg>
                     <span id="scoreText" class="absolute text-3xl font-bold">0</span>
                 </div>
-                <h3 id="verdictTitle" class="text-2xl font-bold mb-2">Analyzing...</h3>
-                <p id="verdictDesc" class="text-slate-400">Running simulations...</p>
-                <div class="mt-8"><a href="#pricing" class="bg-blue-600 px-8 py-4 rounded-xl font-bold">Unlock Plan</a></div>
+                <h3 id="verdictTitle" class="text-2xl font-bold mb-2 text-blue-400">Analyzing...</h3>
+                <p id="verdictDesc" class="text-slate-400 mb-6">Evaluating market saturation and scalability...</p>
+                <a href="#pricing" class="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-4 rounded-xl font-bold hover:scale-105 transition">Unlock 30-Day Roadmap</a>
             </div>
         </div>
     </section>
+
+    <section id="gems" class="py-24 bg-slate-900/50 border-y border-white/5">
+        <div class="max-w-7xl mx-auto px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-4">Meet Your AI Executive Board</h2>
+                <p class="text-slate-400 max-w-2xl mx-auto text-lg">Your subscription unlocks 6 specialized AI agents (GEMS) that don't just chat—they work.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="glass-card p-8 rounded-2xl border-white/5 hover:border-blue-500/30 transition">
+                    <i class="fa-solid fa-bullhorn text-3xl text-orange-400 mb-6"></i>
+                    <h4 class="text-xl font-bold mb-3">MarketingAI</h4>
+                    <p class="text-slate-400 text-sm leading-relaxed">Deploys ad campaigns and automates social media growth 24/7.</p>
+                </div>
+                <div class="glass-card p-8 rounded-2xl border-white/5 hover:border-blue-500/30 transition">
+                    <i class="fa-solid fa-gavel text-3xl text-slate-300 mb-6"></i>
+                    <h4 class="text-xl font-bold mb-3">LawyerAI</h4>
+                    <p class="text-slate-400 text-sm leading-relaxed">Generates bulletproof contracts, NDAs, and LLC filings in seconds.</p>
+                </div>
+                <div class="glass-card p-8 rounded-2xl border-white/5 hover:border-blue-500/30 transition">
+                    <i class="fa-solid fa-calculator text-3xl text-red-400 mb-6"></i>
+                    <h4 class="text-xl font-bold mb-3">AccountantAI</h4>
+                    <p class="text-slate-400 text-sm leading-relaxed">Real-time profit tracking, tax estimation, and Stripe integration.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <section id="pricing" class="py-24 max-w-5xl mx-auto px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl font-bold mb-4">Choose Your Launch Speed</h2>
+        </div>
         <div class="grid md:grid-cols-2 gap-8">
-            <div class="glass-card p-10 rounded-3xl border-2 border-slate-800">
-                <h3 class="text-2xl font-bold mb-6">Founder Tier - $39</h3>
-                <button onclick="subscribe('Founder')" class="w-full py-4 rounded-xl bg-blue-600 font-bold">Subscribe</button>
+            <div class="glass-card p-10 rounded-3xl border-2 border-slate-800 hover:border-blue-500 transition flex flex-col">
+                <h3 class="text-2xl font-bold mb-2">Founder Tier</h3>
+                <div class="text-4xl font-bold mb-8">$39 <span class="text-lg text-slate-500 font-normal">/mo</span></div>
+                <ul class="space-y-4 mb-10 text-slate-300 flex-grow">
+                    <li><i class="fa-solid fa-check text-blue-500 mr-2"></i> All 6 Core AI GEMS</li>
+                    <li><i class="fa-solid fa-check text-blue-500 mr-2"></i> 30-Day Roadmap Access</li>
+                    <li><i class="fa-solid fa-check text-blue-500 mr-2"></i> Orchestrator Management</li>
+                </ul>
+                <button onclick="subscribe('Founder')" class="w-full py-4 rounded-xl bg-blue-600 font-bold hover:bg-blue-500 transition shadow-lg shadow-blue-600/20">Start Launching</button>
             </div>
-            <div class="glass-card p-10 rounded-3xl border-2 border-purple-500">
-                <h3 class="text-2xl font-bold mb-6">Growth Tier - $39</h3>
-                <button onclick="subscribe('Growth')" class="w-full py-4 rounded-xl bg-purple-600 font-bold">Get Growth</button>
+
+            <div class="glass-card p-10 rounded-3xl border-2 border-purple-500 shadow-xl shadow-purple-500/10 flex flex-col">
+                <h3 class="text-2xl font-bold mb-2">Growth Tier</h3>
+                <div class="text-4xl font-bold mb-8">$39 <span class="text-lg text-slate-500 font-normal">/mo</span></div>
+                <ul class="space-y-4 mb-10 text-slate-300 flex-grow">
+                    <li><i class="fa-solid fa-check text-purple-500 mr-2"></i> Everything in Founder</li>
+                    <li><i class="fa-solid fa-check text-purple-500 mr-2"></i> AI-Hiring Suite</li>
+                    <li><i class="fa-solid fa-check text-purple-500 mr-2"></i> Custom Landing Page Builder</li>
+                </ul>
+                <button onclick="subscribe('Growth')" class="w-full py-4 rounded-xl bg-purple-600 font-bold hover:bg-purple-500 transition shadow-lg shadow-purple-600/20">Scale Now</button>
             </div>
         </div>
     </section>
+
+    <footer class="py-12 text-center text-slate-500 border-t border-white/5 text-sm">
+        <p>&copy; 2026 LaunchAI. All rights reserved. Built for builders.</p>
+    </footer>
+
     <script>
         function analyzeIdea() {
             const idea = document.getElementById('ideaInput').value;
-            if (!idea) { alert("Enter an idea!"); return; }
-            document.getElementById('inputContainer').classList.add('analyzing-active');
-            document.getElementById('resultsArea').classList.remove('hidden');
+            const resultsArea = document.getElementById('resultsArea');
+            const scoreCircle = document.getElementById('scoreCircle');
+            const scoreText = document.getElementById('scoreText');
+            const inputContainer = document.getElementById('inputContainer');
+
+            if (!idea || idea.trim() === "") {
+                alert("Please enter a business idea first!");
+                return;
+            }
+
+            inputContainer.classList.add('analyzing-active');
+            resultsArea.classList.remove('hidden');
+            resultsArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
             let score = 0;
-            const target = 85;
+            const targetScore = Math.floor(Math.random() * 20) + 76; 
+            
             const interval = setInterval(() => {
-                if (score >= target) { clearInterval(interval); document.getElementById('verdictTitle').innerText = "High Potential!"; }
-                else { score++; document.getElementById('scoreText').innerText = score; document.getElementById('scoreCircle').style.strokeDashoffset = 377 - (377 * score / 100); }
-            }, 30);
+                if (score >= targetScore) {
+                    clearInterval(interval);
+                    inputContainer.classList.remove('analyzing-active');
+                    document.getElementById('verdictTitle').innerText = "Analysis: High Potential";
+                    document.getElementById('verdictDesc').innerText = "Market data shows a strong path to revenue. Your 30-day sequence is ready.";
+                } else {
+                    score++;
+                    scoreText.innerText = score;
+                    const offset = 377 - (377 * score / 100);
+                    scoreCircle.style.strokeDashoffset = offset;
+                }
+            }, 25);
         }
+
         function subscribe(tier) {
-            if (tier === 'Founder') window.location.href = "https://buy.stripe.com/fZu6oG8XJgRLaIu6Ov7Re01";
-            else window.location.href = "https://buy.stripe.com/cNi4gy6PB8lf3g22yf7Re02";
+            if (tier === 'Founder') {
+                window.location.href = "https://buy.stripe.com/fZu6oG8XJgRLaIu6Ov7Re01";
+            } else if (tier === 'Growth') {
+                window.location.href = "https://buy.stripe.com/cNi4gy6PB8lf3g22yf7Re02";
+            }
         }
     </script>
 </body>
