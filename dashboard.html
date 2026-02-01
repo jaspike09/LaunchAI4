@@ -135,112 +135,145 @@
     </main>
 
     <script>
-        /**
-         * 1. THE BOUNCER & AUTH
-         */
-        (function init() {
-            const isFounder = localStorage.getItem('launchAI_GodMode') === 'true';
-            const isSubscribed = localStorage.getItem('isSubscribed') === 'true';
-            const idea = localStorage.getItem('userBusinessIdea') || "Your Venture";
+    /**
+     * 1. THE TRUTH-TELLER INITIALIZATION
+     */
+    (function init() {
+        const isFounder = localStorage.getItem('launchAI_GodMode') === 'true';
+        const isSubscribed = localStorage.getItem('isSubscribed') === 'true';
+        const idea = localStorage.getItem('userBusinessIdea') || "Your Venture";
 
-            // Kick out unauthorized users
-            if (!isFounder && !isSubscribed) {
-                window.location.href = 'index.html?access=denied';
-                return;
-            }
-
-            // Populate Idea text
-            document.getElementById('ideaDisplay').innerText = idea;
-
-            // God Mode Check: Show Reset Button & Change Tier Label
-            if (isFounder) {
-                document.getElementById('adminReset').classList.remove('hidden');
-                document.getElementById('userNameDisplay').innerText = "Architect";
-                document.getElementById('tierBadge').classList.replace('bg-blue-600', 'bg-purple-600');
-                document.getElementById('tierBadge').innerText = "A";
-                document.getElementById('tierName').innerText = "Architect Tier";
-            }
-        })();
-
-        /**
-         * 2. NAVIGATION
-         */
-        function showSection(id) {
-            // Manage Content Visibility
-            document.getElementById('overview').classList.add('hidden');
-            document.getElementById('roadmap').classList.add('hidden');
-            document.getElementById('chatArea').classList.add('hidden');
-            document.getElementById(id).classList.remove('hidden');
-
-            // Manage Sidebar Active State
-            document.querySelectorAll('.sidebar-link').forEach(link => link.classList.remove('active-link'));
-            const activeLink = document.getElementById('link-' + id);
-            if (activeLink) activeLink.classList.add('active-link');
-
-            document.getElementById('sectionTitle').innerText = id.charAt(0).toUpperCase() + id.slice(1);
+        // Security Check
+        if (!isFounder && !isSubscribed) {
+            window.location.href = 'index.html?access=denied';
+            return;
         }
 
-        let currentAgent = "";
-        function openChat(agent) {
-            currentAgent = agent;
-            showSection('chatArea');
-            document.getElementById('sectionTitle').innerText = agent;
+        // Update UI with Idea
+        document.getElementById('ideaDisplay').innerText = idea;
+
+        // God Mode / Architect UI Adjustments
+        if (isFounder) {
+            document.getElementById('adminReset').classList.remove('hidden');
+            document.getElementById('userNameDisplay').innerText = "Architect";
+            document.getElementById('tierBadge').classList.replace('bg-blue-600', 'bg-purple-600');
+            document.getElementById('tierBadge').innerText = "A";
+            document.getElementById('tierName').innerText = "Architect Tier";
+        }
+
+        // Trigger the Board's first honest assessment automatically
+        triggerInitialCritique(idea);
+    })();
+
+    async function triggerInitialCritique(idea) {
+        // Open the CoachAI chat automatically
+        openChat('CoachAI');
+        
+        const chatBox = document.getElementById('chatBox');
+        const loaderId = "loader-init";
+        chatBox.innerHTML += `<div id="${loaderId}" class="text-blue-500 text-xs animate-pulse p-2 uppercase tracking-widest font-bold">Board is reviewing "${idea}" for viability...</div>`;
+
+        try {
+            const response = await fetch('/api/architect', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    message: "Give me an honest, brutal 1-10 viability score for this business idea and tell me the biggest obstacle I will face.", 
+                    agent: "CoachAI", 
+                    idea: idea 
+                })
+            });
+            const data = await response.json();
             
-            const chatBox = document.getElementById('chatBox');
-            chatBox.innerHTML = `
-                <div class="bg-blue-600/10 border border-blue-500/20 p-4 rounded-2xl mb-4">
-                    <p class="text-sm font-bold text-blue-400 mb-1">${agent}:</p>
-                    <p class="text-slate-200">System online. Standing by for ${agent} protocols regarding "${localStorage.getItem('userBusinessIdea')}".</p>
+            const loader = document.getElementById(loaderId);
+            if (loader) loader.remove();
+            
+            chatBox.innerHTML += `
+                <div class="bg-red-500/10 border border-red-500/20 p-4 rounded-2xl mb-4 mr-12 shadow-[0_0_15px_rgba(239,68,68,0.1)]">
+                    <p class="text-sm font-bold text-red-400 mb-1">CoachAI [URGENT BRIEFING]:</p>
+                    <p class="text-slate-200">${data.text}</p>
                 </div>`;
+        } catch (err) {
+            const loader = document.getElementById(loaderId);
+            if (loader) loader.innerText = "Board offline. Verify API connection.";
         }
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
 
-        /**
-         * 3. MESSAGING LOGIC
-         */
-        async function sendMessage() {
-            const input = document.getElementById('chatInput');
-            const chatBox = document.getElementById('chatBox');
-            const text = input.value.trim();
-            if (!text) return;
+    /**
+     * 2. NAVIGATION
+     */
+    function showSection(id) {
+        document.getElementById('overview').classList.add('hidden');
+        document.getElementById('roadmap').classList.add('hidden');
+        document.getElementById('chatArea').classList.add('hidden');
+        document.getElementById(id).classList.remove('hidden');
 
-            // Add User Message UI
-            chatBox.innerHTML += `<div class="bg-white/5 p-4 rounded-2xl text-right mb-4 ml-12"><p class="text-slate-200">${text}</p></div>`;
-            input.value = "";
-            chatBox.scrollTop = chatBox.scrollHeight;
+        document.querySelectorAll('.sidebar-link').forEach(link => link.classList.remove('active-link'));
+        const activeLink = document.getElementById('link-' + id);
+        if (activeLink) activeLink.classList.add('active-link');
 
-            // Loading UI
-            const loaderId = "loader-" + Date.now();
-            chatBox.innerHTML += `<div id="${loaderId}" class="text-blue-500 text-xs animate-pulse p-2 uppercase tracking-widest font-bold">Connecting to Board...</div>`;
+        document.getElementById('sectionTitle').innerText = id.charAt(0).toUpperCase() + id.slice(1);
+    }
 
-            try {
-                // Change to your actual Vercel/API URL
-                const response = await fetch('/api/architect', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: text, agent: currentAgent, idea: localStorage.getItem('userBusinessIdea') })
-                });
-                const data = await response.json();
-                document.getElementById(loaderId).remove();
-                
-                chatBox.innerHTML += `<div class="bg-blue-600/10 border border-blue-500/20 p-4 rounded-2xl mb-4 mr-12"><p class="text-sm font-bold text-blue-400 mb-1">${currentAgent}:</p><p class="text-slate-200">${data.text}</p></div>`;
-            } catch (err) {
-                document.getElementById(loaderId).innerHTML = "<span class='text-red-500'>Board offline. Verify API.</span>";
-            }
-            chatBox.scrollTop = chatBox.scrollHeight;
+    let currentAgent = "";
+    function openChat(agent) {
+        currentAgent = agent;
+        showSection('chatArea');
+        document.getElementById('sectionTitle').innerText = agent;
+        
+        const chatBox = document.getElementById('chatBox');
+        // Clear previous chat when switching agents, but preserve the initial critique if just starting
+        chatBox.innerHTML = `
+            <div class="bg-blue-600/10 border border-blue-500/20 p-4 rounded-2xl mb-4">
+                <p class="text-sm font-bold text-blue-400 mb-1">${agent}:</p>
+                <p class="text-slate-200">System online. Standing by for ${agent} protocols regarding "${localStorage.getItem('userBusinessIdea') || 'Your Venture'}".</p>
+            </div>`;
+    }
+
+    /**
+     * 3. MESSAGING LOGIC
+     */
+    async function sendMessage() {
+        const input = document.getElementById('chatInput');
+        const chatBox = document.getElementById('chatBox');
+        const text = input.value.trim();
+        if (!text) return;
+
+        chatBox.innerHTML += `<div class="bg-white/5 p-4 rounded-2xl text-right mb-4 ml-12"><p class="text-slate-200">${text}</p></div>`;
+        input.value = "";
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        const loaderId = "loader-" + Date.now();
+        chatBox.innerHTML += `<div id="${loaderId}" class="text-blue-500 text-xs animate-pulse p-2 uppercase tracking-widest font-bold">Connecting to Board...</div>`;
+
+        try {
+            const response = await fetch('/api/architect', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text, agent: currentAgent, idea: localStorage.getItem('userBusinessIdea') })
+            });
+            const data = await response.json();
+            
+            const loader = document.getElementById(loaderId);
+            if (loader) loader.remove();
+            
+            chatBox.innerHTML += `<div class="bg-blue-600/10 border border-blue-500/20 p-4 rounded-2xl mb-4 mr-12"><p class="text-sm font-bold text-blue-400 mb-1">${currentAgent}:</p><p class="text-slate-200">${data.text}</p></div>`;
+        } catch (err) {
+            const loader = document.getElementById(loaderId);
+            if (loader) loader.innerHTML = "<span class='text-red-500'>Board offline. Verify API.</span>";
         }
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
 
-        /**
-         * 4. ADMIN TOOLS
-         */
-        function adminReset() {
-            if (confirm("Developer Alert: This will wipe your local access tokens and reset the app. Continue?")) {
-                localStorage.clear();
-                window.location.href = 'index.html';
-            }
+    function adminReset() {
+        if (confirm("Developer Alert: This will wipe your local access tokens and reset the app. Continue?")) {
+            localStorage.clear();
+            window.location.href = 'index.html';
         }
+    }
 
-        // Handle Enter Key
-        document.getElementById('chatInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
-    </script>
+    document.getElementById('chatInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
+</script>
 </body>
 </html>
