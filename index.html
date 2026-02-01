@@ -163,6 +163,11 @@
     </footer>
 
     <script>
+		window.activateGodMode = function() {
+    localStorage.setItem('launchAI_GodMode', 'true');
+    console.log("🔓 GOD MODE ACTIVE.");
+    alert("Founder status confirmed. You now have permanent access to all GEMS.");
+};
         function analyzeIdea() {
             const idea = document.getElementById('ideaInput').value;
             const resultsArea = document.getElementById('resultsArea');
