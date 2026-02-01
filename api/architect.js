@@ -1,43 +1,38 @@
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
 export default async function handler(req, res) {
-  // Ensure we are getting the data from the front-end
-  const { message, idea, day } = JSON.parse(req.body);
-  const apiKey = process.env.GEMINI_API_KEY;
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const { message, agent, idea } = req.body;
 
   try {
-    // 1. THE TRIAGE: Decide which GEM speaks
-    const triagePrompt = `You are the Lead Orchestrator for LaunchAI.
-    Founder Message: "${message}"
-    Assign this to ONE GEM: Mentor, Coach, Secretary, Accountant, Lawyer, Marketing.
-    Respond with ONLY the name.`;
+    const model = genAI.getGenerativeModel({ 
+        model: "gemini-1.5-flash",
+        systemInstruction: `You are ${agent}, a high-level executive on the GEMS Board. 
+        The business idea is: "${idea}". 
+        
+        Adopt the following persona based on the agent name:
+        - CoachAI: Brutal, honest, data-driven, and focused on 1-10 viability scores.
+        - MarketingAI: Expert growth hacker, focused on virality and ad copy.
+        - LawyerAI: Risk-averse, focused on compliance and legal protection.
+        - MentorAI: High-level strategist (the one from the video), focused on long-term vision and mindset.
+        - SecretaryAI: Extremely organized, summarizes meetings, and creates action items.
+        - AccountantAI: Focused on burn rate, Stripe integration logic, and profit margins.
 
-    const triageRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contents: [{ parts: [{ text: triagePrompt }] }] })
-    });
-    const triageData = await triageRes.json();
-    const assignedRole = triageData.candidates[0].content.parts[0].text.trim();
-
-    // 2. THE RESPONSE: The chosen GEM answers
-    const executionPrompt = `You are the ${assignedRole} for LaunchAI. 
-    Project: ${idea}. Day: ${day}.
-    Founder: "${message}"
-    Provide a concise, high-impact response in your specific persona.`;
-
-    const finalRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contents: [{ parts: [{ text: executionPrompt }] }] })
-    });
-    const finalData = await finalRes.json();
-
-    // 3. RETURN DATA: Matches your sendMessage() function exactly
-    res.status(200).json({
-      role: assignedRole,
-      text: finalData.candidates[0].content.parts[0].text
+        Always provide high-value, actionable advice. If the user asks for a score, be truthful based on current 2026 market trends.`
     });
 
+    const result = await model.generateContent(message);
+    const response = await result.response;
+    const text = response.text();
+
+    res.status(200).json({ text });
   } catch (error) {
-    res.status(500).json({ error: "Architect Offline", details: error.message });
+    console.error(error);
+    res.status(500).json({ error: "The GEMS Board is currently offline." });
   }
 }
