@@ -93,6 +93,29 @@
 
     <script>
     let currentAgent = "Architect"; // Default starting agent
+        // 1. The Global Check
+function checkSubscription() {
+    const isFounder = localStorage.getItem('launchAI_GodMode') === 'true';
+    const isSubscribed = localStorage.getItem('isSubscribed') === 'true';
+
+    if (isFounder || isSubscribed) {
+        console.log("Access Granted: Founder/Subscriber Status Confirmed.");
+        return true;
+    } else {
+        // Redirect to paywall or show lock
+        alert("Please subscribe to access the Board of Directors.");
+        return false;
+    }
+}
+
+// 2. HOW TO ACTIVATE GOD MODE (For You Only)
+// Open your browser console (F12) on your site and type:
+// activateGodMode()
+function activateGodMode() {
+    localStorage.setItem('launchAI_GodMode', 'true');
+    console.log("GOD MODE ACTIVE. Subscription bypass engaged.");
+    location.reload();
+}
 
     function showSection(id) {
         document.getElementById('overview').classList.add('hidden');
