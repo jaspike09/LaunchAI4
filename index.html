@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LaunchAI | Validate & Build Your Empire</title>
-    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
-    <link href="[https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css)" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         html { scroll-behavior: smooth; }
         .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
@@ -70,7 +70,7 @@
         <div class="max-w-7xl mx-auto px-8">
             <div class="text-center mb-16">
                 <h2 class="text-4xl font-bold mb-4">Meet Your AI Executive Board</h2>
-                <p class="text-slate-400 max-w-2xl mx-auto text-lg">Your subscription unlocks 8 specialized AI agents (GEMS) that don't just chat—they work.</p>
+                <p class="text-slate-400 max-w-2xl mx-auto text-lg">Your subscription unlocks specialized AI agents (GEMS) that don't just chat—they work.</p>
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -100,9 +100,7 @@
 
         <div class="grid md:grid-cols-2 gap-8">
             <div class="glass-card p-10 rounded-3xl border-2 border-slate-800 hover:border-blue-500 transition flex flex-col">
-                <div class="flex justify-between items-start mb-4">
-                    <h3 class="text-2xl font-bold">Founder Tier</h3>
-                </div>
+                <h3 class="text-2xl font-bold mb-4">Founder Tier</h3>
                 <div class="text-4xl font-bold mb-8">$39 <span class="text-lg text-slate-500 font-normal">/mo</span></div>
                 <ul class="space-y-4 mb-10 text-slate-300 flex-grow">
                     <li><i class="fa-solid fa-check text-blue-500 mr-2"></i> All Core AI GEMS</li>
@@ -112,7 +110,7 @@
             </div>
 
             <div class="glass-card p-10 rounded-3xl border-2 border-purple-500 flex flex-col">
-                <h3 class="text-2xl font-bold mb-2">Growth Tier</h3>
+                <h3 class="text-2xl font-bold mb-4">Growth Tier</h3>
                 <div class="text-4xl font-bold mb-8">$79 <span class="text-lg text-slate-500 font-normal">/mo</span></div>
                 <ul class="space-y-4 mb-10 text-slate-300 flex-grow">
                     <li><i class="fa-solid fa-check text-purple-500 mr-2"></i> Everything in Founder</li>
@@ -128,32 +126,35 @@
     </footer>
 
     <script>
-        // THE MASTER ACTIVATOR - Type activateGodMode() in console
+        // GOD MODE: Open console and type activateGodMode()
         window.activateGodMode = function() {
             localStorage.setItem('launchAI_GodMode', 'true');
-            console.log("🔓 GOD MODE ACTIVE.");
-            alert("Founder status confirmed. Paywall bypassed.");
+            console.log("🔓 ARCHITECT ACCESS GRANTED.");
+            alert("God Mode Active. Paywall bypassed.");
         };
 
-        // NAVIGATION LOGIC
+        // ACCESS LOGIC: Handles the redirection to Stripe or Dashboard
         function handleAccess(tier) {
             const idea = document.getElementById('ideaInput').value;
+            // Store the idea so the Dashboard can use it later
             localStorage.setItem('userBusinessIdea', idea || "New Venture");
 
-            const isFounder = localStorage.getItem('launchAI_GodMode') === 'true';
+            const isGodMode = localStorage.getItem('launchAI_GodMode') === 'true';
 
-            if (isFounder) {
+            if (isGodMode) {
+                // If God Mode is on, go straight to the dashboard
                 window.location.href = 'dashboard.html';
             } else {
+                // Normal users go to Stripe (which will then redirect to success.html)
                 if (tier === 'Founder') {
-                    window.location.href = "[https://buy.stripe.com/dRmbJ01vhgRL8Am8WD7Re03](https://buy.stripe.com/dRmbJ01vhgRL8Am8WD7Re03)";
+                    window.location.href = "https://buy.stripe.com/dRmbJ01vhgRL8Am8WD7Re03";
                 } else {
-                    window.location.href = "[https://buy.stripe.com/cNi4gy6PB8lf3g22yf7Re02](https://buy.stripe.com/cNi4gy6PB8lf3g22yf7Re02)";
+                    window.location.href = "https://buy.stripe.com/cNi4gy6PB8lf3g22yf7Re02";
                 }
             }
         }
 
-        // ANALYSIS ANIMATION
+        // ANALYSIS ANIMATION LOGIC
         function analyzeIdea() {
             const idea = document.getElementById('ideaInput').value;
             const resultsArea = document.getElementById('resultsArea');
@@ -162,30 +163,33 @@
             const inputContainer = document.getElementById('inputContainer');
 
             if (!idea || idea.trim() === "") {
-                alert("Please enter a business idea first!");
+                alert("Please describe your vision first!");
                 return;
             }
 
+            // UI Effects
             inputContainer.classList.add('analyzing-active');
             resultsArea.classList.remove('hidden');
             resultsArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
+            // Fake Analysis Counter
             let score = 0;
-            const targetScore = Math.floor(Math.random() * 20) + 76; 
+            const targetScore = Math.floor(Math.random() * 15) + 82; // Random score between 82-97
             
             const interval = setInterval(() => {
                 if (score >= targetScore) {
                     clearInterval(interval);
                     inputContainer.classList.remove('analyzing-active');
                     document.getElementById('verdictTitle').innerText = "Analysis: High Potential";
-                    document.getElementById('verdictDesc').innerText = "Market data shows a strong path to revenue. Your 30-day launch plan is ready.";
+                    document.getElementById('verdictDesc').innerText = "Market data shows a strong path to revenue for this concept. Your roadmap is ready.";
                 } else {
                     score++;
                     scoreText.innerText = score;
+                    // Update SVG Circle
                     const offset = 377 - (377 * score / 100);
                     scoreCircle.style.strokeDashoffset = offset;
                 }
-            }, 25);
+            }, 30);
         }
     </script>
 </body>
