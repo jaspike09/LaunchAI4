@@ -92,50 +92,49 @@
     </main>
 
     <script>
-    // --- 1. THE BOUNCER (Security Gate) ---
+    /**
+     * 1. THE BOUNCER & DATA INITIALIZATION
+     * This runs immediately before the page even finishes rendering.
+     */
     (function() {
-        // Check if coming back from Stripe (Success)
+        // A. Check for Stripe Success return
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('session') === 'success') {
             localStorage.setItem('isSubscribed', 'true');
         }
 
+        // B. Check Authorization Status
         const isFounder = localStorage.getItem('launchAI_GodMode') === 'true';
         const isSubscribed = localStorage.getItem('isSubscribed') === 'true';
 
-        // If not verified, kick back to landing page
+        // C. The Security Gate
         if (!isFounder && !isSubscribed) {
-            window.location.href = 'index.html?access=denied';
+            console.error("Unauthorized access attempt.");
+            window.location.href = 'index.html?error=no_access';
+            return;
         }
+
+        console.log(isFounder ? "Welcome, Founder." : "Subscriber verified.");
     })();
 
-    // --- 2. GLOBAL FOUNDER UTILITIES ---
-    window.activateGodMode = function() {
-        localStorage.setItem('launchAI_GodMode', 'true');
-        console.log("🔓 GOD MODE ACTIVE.");
-        alert("Founder status confirmed. Welcome, Architect.");
-        location.reload();
-    };
+    /**
+     * 2. CORE DASHBOARD STATE
+     */
+    let currentAgent = "Architect";
+    // Pull the idea you typed on the landing page
+    const concept = localStorage.getItem('userBusinessIdea') || "Your Venture";
 
-    window.deactivateGodMode = function() {
-        localStorage.removeItem('launchAI_GodMode');
-        localStorage.removeItem('isSubscribed');
-        location.reload();
-    };
-
-    // --- 3. DASHBOARD LOGIC ---
-    let currentAgent = "Architect"; 
-    // Pull the idea from localStorage (saved from your landing page)
-    const concept = localStorage.getItem('userBusinessIdea') || "New Venture";
-
+    /**
+     * 3. NAVIGATION & UI LOGIC
+     */
     function showSection(id) {
-        // Hide all major sections
+        // Hide major containers
         document.getElementById('overview').classList.add('hidden');
         document.getElementById('chatArea').classList.add('hidden');
         
-        // Handle optional sections if they exist (like roadmap)
+        // Show target container
         const target = document.getElementById(id);
-        if(target) {
+        if (target) {
             target.classList.remove('hidden');
             document.getElementById('sectionTitle').innerText = id.charAt(0).toUpperCase() + id.slice(1);
         }
@@ -145,20 +144,24 @@
         currentAgent = agent;
         showSection('chatArea');
         document.getElementById('sectionTitle').innerText = agent;
+        
         const chatBox = document.getElementById('chatBox');
         chatBox.innerHTML = `
             <div class="bg-blue-600/10 border border-blue-500/20 p-4 rounded-2xl mb-4">
                 <p class="text-sm font-bold text-blue-400 mb-1">${agent}:</p>
-                <p class="text-slate-200">I am logged in and ready. What's the directive for ${concept}?</p>
+                <p class="text-slate-200">System online. How shall we proceed with the ${concept} deployment?</p>
             </div>`;
     }
 
+    /**
+     * 4. AI COMMUNICATION (VERCEL API)
+     */
     async function sendMessage() {
         const input = document.getElementById('chatInput');
         const chatBox = document.getElementById('chatBox');
-        const userText = input.value;
+        const userText = input.value.trim();
 
-        if(!userText) return;
+        if (!userText) return;
 
         // Display User Message
         chatBox.innerHTML += `
@@ -169,53 +172,55 @@
         input.value = "";
         chatBox.scrollTop = chatBox.scrollHeight;
 
-        // Show "Thinking" State
+        // Display Loading State
         const loadingId = "loading-" + Date.now();
         chatBox.innerHTML += `
             <div id="${loadingId}" class="bg-blue-600/5 p-4 rounded-2xl mb-4 animate-pulse">
-                <p class="text-xs text-blue-500 italic uppercase">Orchestrator: Routing to the Board...</p>
+                <p class="text-xs text-blue-500 italic uppercase">Routing to the Board...</p>
             </div>`;
 
         try {
-            // THE REAL CALL: Talk to your Vercel API
             const response = await fetch('/api/architect', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     message: userText,
                     idea: concept,
+                    role: currentAgent, // Pass the selected GEM to the AI
                     day: 1
                 })
             });
 
             const data = await response.json();
-            
-            // Remove loading state
             document.getElementById(loadingId).remove();
 
-            // AUTOMATIC TRIAGE: Update UI if the GEM switched
-            currentAgent = data.role; 
-            document.getElementById('sectionTitle').innerText = currentAgent;
-
-            // Display Real AI Response
+            // Display AI Response
             chatBox.innerHTML += `
                 <div class="bg-blue-600/10 border border-blue-500/20 p-4 rounded-2xl mb-4 mr-12">
-                    <p class="text-sm font-bold text-blue-400 mb-1">${data.role}:</p>
+                    <p class="text-sm font-bold text-blue-400 mb-1">${data.role || currentAgent}:</p>
                     <p class="text-slate-200">${data.text}</p>
                 </div>`;
             
             chatBox.scrollTop = chatBox.scrollHeight;
 
         } catch (error) {
-            if(document.getElementById(loadingId)) {
-                document.getElementById(loadingId).innerHTML = `<p class="text-red-500 text-xs">Error: Board connection offline. Check Vercel logs.</p>`;
+            console.error("API Error:", error);
+            const loadingEl = document.getElementById(loadingId);
+            if (loadingEl) {
+                loadingEl.innerHTML = `<p class="text-red-500 text-xs text-center font-bold">Board Connection Error. Verify Vercel API deployment.</p>`;
+                loadingEl.classList.remove('animate-pulse');
             }
         }
     }
 
-    // Support Enter Key
-    document.getElementById('chatInput').addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') sendMessage();
+    // Enter Key Listener
+    document.addEventListener('DOMContentLoaded', () => {
+        const chatInput = document.getElementById('chatInput');
+        if (chatInput) {
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendMessage();
+            });
+        }
     });
 </script>
 </body>
