@@ -1,45 +1,103 @@
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mission Briefing | LaunchAI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .overlay-gate { 
+            position: absolute; inset: 0; background: rgba(15, 23, 42, 0.98); 
+            z-index: 20; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; transition: opacity 0.5s ease;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-white min-h-screen flex items-center justify-center p-6">
+
+    <div class="glass p-8 md:p-12 rounded-[40px] max-w-3xl w-full text-center shadow-2xl relative overflow-hidden">
+        <div class="inline-block px-4 py-1 mb-6 text-[10px] font-bold tracking-widest text-blue-400 uppercase bg-blue-400/10 rounded-full border border-blue-400/20">
+            Secure Connection Established
+        </div>
+
+        <h2 class="text-3xl font-bold mb-8 tracking-tighter">Your Board is Assembling...</h2>
+
+        <div class="relative aspect-video rounded-3xl overflow-hidden border border-white/10 bg-black mb-8 shadow-2xl">
+            <div id="playGate" class="overlay-gate">
+                <button id="startBriefing" class="group flex flex-col items-center gap-4">
+                    <div class="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center shadow-lg shadow-blue-500/40 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-play text-2xl ml-1"></i>
+                    </div>
+                    <span class="text-blue-400 font-bold tracking-widest text-xs">INITIALIZE BRIEFING</span>
+                </button>
+            </div>
+
+            <video id="mentorVideo" class="w-full h-full object-cover">
+                <source src="MentorAI vid.mp4" type="video/mp4">
+            </video>
+        </div>
+
+        <p class="text-slate-400 mb-8">
+            Analyzing vision for: <span id="currentIdea" class="text-blue-400 font-semibold italic">"Your Venture"</span>
+        </p>
+
+        <a href="dashboard.html" id="dashboardBtn" class="opacity-0 translate-y-4 pointer-events-none inline-block bg-blue-600 px-10 py-4 rounded-2xl font-bold hover:bg-blue-500 transition-all duration-700 shadow-lg shadow-blue-600/30">
+            Enter Mission Control <i class="fa-solid fa-arrow-right ml-2"></i>
+        </a>
+    </div>
+
+    <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[120px] -z-10"></div>
+
     <script>
-        // Initialize Supabase (Same credentials as auth.js)
+        // --- 1. CONFIG & INITIALIZATION ---
         const SUPABASE_URL = 'https://yvgzyymjymrgjhhthgtj.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2Z3p5eW1qeW1yZ2poaHRoZ3RqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5OTc1MzIsImV4cCI6MjA4NTU3MzUzMn0.814FVde267XILaw-VA76Yuk6Y6BVQpCr_5fAF2KtBFw';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        // 1. Data Setup
-        localStorage.setItem('isSubscribed', 'true');
-        const savedIdea = localStorage.getItem('userBusinessIdea');
-        if (savedIdea) {
-            document.getElementById('currentIdea').innerText = `"${savedIdea}"`;
-        }
 
         const video = document.getElementById('mentorVideo');
         const playGate = document.getElementById('playGate');
         const startBtn = document.getElementById('startBriefing');
         const dashBtn = document.getElementById('dashboardBtn');
 
-        // 2. Interaction Logic
+        // Load Idea from local storage
+        const savedIdea = localStorage.getItem('userBusinessIdea');
+        if (savedIdea) {
+            document.getElementById('currentIdea').innerText = `"${savedIdea}"`;
+        }
+
+        // --- 2. INTERACTION LOGIC ---
         startBtn.addEventListener('click', () => {
+            // Hide gate and start video
             playGate.style.opacity = '0';
             setTimeout(() => playGate.classList.add('hidden'), 500);
+            
             video.muted = false;
             video.play();
             
+            // Show the "Enter Dashboard" button after 5 seconds
             setTimeout(() => {
                 dashBtn.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
             }, 5000);
         });
 
-        // 3. Permanent Sync on Exit
-        dashBtn.addEventListener('click', async (e) => {
-            // Optional: Sync subscription status to Supabase before leaving
+        // --- 3. PERMANENT SYNC ---
+        dashBtn.addEventListener('click', async () => {
+            localStorage.setItem('isSubscribed', 'true');
+            
             const { data: { user } } = await _supabase.auth.getUser();
             if (user) {
+                // Mark user as paid in the database
                 await _supabase.from('profiles').update({ is_paid: true }).eq('id', user.id);
             }
         });
 
         video.onended = () => {
-            dashBtn.classList.add('animate-pulse');
+            dashBtn.classList.add('animate-pulse', 'bg-green-600');
             dashBtn.innerHTML = 'Enter Mission Control <i class="fa-solid fa-rocket ml-2"></i>';
         };
     </script>
+</body>
+</html>
