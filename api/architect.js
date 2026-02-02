@@ -3,18 +3,17 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  // Use the API Key from Vercel Environment Variables
-  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+  if (!process.env.GEMINI_API_KEY) {
+    return res.status(500).json({ error: "Missing GEMINI_API_KEY" });
+  }
+
+  const { message, agent, idea } = req.body;
 
   try {
-    /**
-     * FIX: We use 'gemini-1.5-flash-latest'. 
-     * This ID is specifically designed to work across v1 and v1beta 
-     * without triggering the 404 mismatch.
-     */
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
-
-    const { message, agent, idea } = req.body;
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    
+    // FIX: Switching to gemini-1.5-flash is required for 2026 stability
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const prompt = `You are ${agent} on the GEMS Board for "${idea}". 
     Evaluate this: ${message}. 
@@ -26,7 +25,7 @@ export default async function handler(req, res) {
 
     res.status(200).json({ text });
   } catch (error) {
-    console.error("GEMS_ERROR:", error);
+    console.error("GEMS_LOG:", error);
     res.status(500).json({ error: error.message });
   }
 }
