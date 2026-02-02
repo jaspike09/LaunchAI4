@@ -5,22 +5,75 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LaunchAI | Validate Your Vision</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    </head>
-<body class="bg-slate-950 text-white">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .analyzing-active { filter: hue-rotate(90deg); transition: 2s; }
+        @keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .pulse { animation: pulse-soft 2s infinite; }
+    </style>
+</head>
+<body class="bg-slate-950 text-white min-h-screen font-sans selection:bg-blue-500/30">
 
-    <div id="app">
-        <h1 onclick="handleLogoClick()">LaunchAI</h1>
-        <input id="ideaInput" placeholder="Enter your idea...">
-        <button id="validateBtn">Validate Idea</button>
-        
-        <div id="resultsArea" class="hidden">
-            <span id="scoreText">0</span>
-            <h2 id="verdictTitle"></h2>
-            <p id="verdictDesc"></p>
-            <button id="founderBtn">Founder Tier</button>
-            <button id="growthBtn">Growth Tier</button>
+    <header class="p-6">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <h1 id="mainLogo" onclick="handleLogoClick()" class="text-2xl font-bold tracking-tighter cursor-pointer select-none">
+                Launch<span class="text-blue-500">AI</span>
+            </h1>
+            <div class="text-xs text-slate-500 font-mono uppercase tracking-widest">System v4.0.2 Active</div>
         </div>
-    </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-6 pt-20 pb-32">
+        <div id="inputContainer" class="text-center transition-all duration-700">
+            <h2 class="text-4xl md:text-6xl font-bold tracking-tighter mb-6">
+                What are we <span class="text-blue-500">building</span> today?
+            </h2>
+            <p class="text-slate-400 mb-10 text-lg">Enter your business vision. Our AI Board will analyze the market gap.</p>
+            
+            <div class="glass p-2 rounded-2xl flex flex-col md:flex-row gap-2 shadow-2xl">
+                <input type="text" id="ideaInput" 
+                    placeholder="e.g. A subscription box for urban gardeners..." 
+                    class="flex-1 bg-transparent border-none px-6 py-4 text-xl outline-none focus:ring-0">
+                <button id="validateBtn" class="bg-blue-600 hover:bg-blue-500 px-10 py-4 rounded-xl font-bold transition shadow-lg shadow-blue-500/20">
+                    Validate Vision
+                </button>
+            </div>
+        </div>
+
+        <div id="resultsArea" class="hidden mt-20 space-y-12 animate-in fade-in slide-in-from-bottom-10 duration-1000">
+            <div class="flex flex-col items-center">
+                <div class="relative w-48 h-48 mb-6">
+                    <svg class="w-full h-full transform -rotate-90">
+                        <circle cx="96" cy="96" r="88" stroke="currentColor" stroke-width="8" fill="transparent" class="text-slate-800"></circle>
+                        <circle id="scoreCircle" cx="96" cy="96" r="88" stroke="currentColor" stroke-width="8" fill="transparent" 
+                            stroke-dasharray="552.9" stroke-dashoffset="552.9" 
+                            class="text-blue-500 transition-all duration-[3000ms] ease-out"></circle>
+                    </svg>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span id="scoreText" class="text-5xl font-bold">0</span><span class="text-xl text-blue-500">%</span>
+                    </div>
+                </div>
+                <h3 id="verdictTitle" class="text-2xl font-bold mb-2">Analyzing Market Data...</h3>
+                <p id="verdictDesc" class="text-slate-400 text-center max-w-md">Our agents are scanning competitors and revenue multiples.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6 mt-12">
+                <div class="glass p-8 rounded-3xl border-blue-500/20 flex flex-col">
+                    <h4 class="text-xl font-bold mb-2">Founder Tier</h4>
+                    <p class="text-slate-400 text-sm mb-6 flex-1">Perfect for solo launches. Full access to the GEMS Board and 30-Day Roadmap.</p>
+                    <div class="text-3xl font-bold mb-6">$39 <span class="text-sm text-slate-500 font-normal">one-time</span></div>
+                    <button id="founderBtn" class="w-full py-4 bg-white text-black rounded-xl font-bold hover:bg-slate-200 transition">Start Launching</button>
+                </div>
+                <div class="glass p-8 rounded-3xl border-blue-500/20 bg-blue-500/5 flex flex-col">
+                    <h4 class="text-xl font-bold mb-2">Architect Tier</h4>
+                    <p class="text-slate-400 text-sm mb-6 flex-1">God Mode enabled. Infinite AI generations and priority board sessions.</p>
+                    <div class="text-3xl font-bold mb-6">$99 <span class="text-sm text-slate-500 font-normal">one-time</span></div>
+                    <button id="growthBtn" class="w-full py-4 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-500 transition shadow-lg shadow-blue-500/30">Go God Mode</button>
+                </div>
+            </div>
+        </div>
+    </main>
 
     <script>
         /**
@@ -31,19 +84,19 @@
             validateBtn: document.getElementById('validateBtn'),
             resultsArea: document.getElementById('resultsArea'),
             scoreText: document.getElementById('scoreText'),
-            scoreCircle: document.getElementById('scoreCircle'), // Make sure this ID exists in your SVG
+            scoreCircle: document.getElementById('scoreCircle'),
             founderBtn: document.getElementById('founderBtn'),
             growthBtn: document.getElementById('growthBtn'),
-            inputContainer: document.getElementById('app')
+            inputContainer: document.getElementById('inputContainer')
         };
 
-        // Logo click counter for God Mode
+        // Logo click counter for God Mode Secret
         let logoClicks = 0;
-        function handleLogoClick() {
+        window.handleLogoClick = function() {
             logoClicks++;
             if (logoClicks === 5) {
                 localStorage.setItem('launchAI_GodMode', 'true');
-                alert("ARCHITECT ACCESS GRANTED.");
+                alert("ARCHITECT ACCESS GRANTED. Stripe will be bypassed.");
             }
         }
 
@@ -57,20 +110,31 @@
                 return;
             }
 
+            // Save idea immediately
             localStorage.setItem('userBusinessIdea', idea);
-            elements.inputContainer.classList.add('analyzing-active');
+
+            // UI Transitions
+            elements.validateBtn.disabled = true;
+            elements.validateBtn.innerText = "Analyzing...";
             elements.resultsArea.classList.remove('hidden');
+            elements.resultsArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
             let score = 0;
-            const targetScore = Math.floor(Math.random() * 15) + 82;
+            const targetScore = Math.floor(Math.random() * 10) + 88; // Score between 88-98
+            
             const interval = setInterval(() => {
                 if (score >= targetScore) {
                     clearInterval(interval);
-                    document.getElementById('verdictTitle').innerText = "Analysis: High Potential";
-                    document.getElementById('verdictDesc').innerText = "Market data shows a strong path to revenue. Your roadmap is ready.";
+                    document.getElementById('verdictTitle').innerText = "Verdict: High Potential";
+                    document.getElementById('verdictDesc').innerText = "Strong market signals detected. The Board is ready to deploy.";
+                    elements.validateBtn.innerText = "Re-Analyze";
+                    elements.validateBtn.disabled = false;
                 } else {
                     score++;
                     elements.scoreText.innerText = score;
+                    // SVG Dash offset calculation (Circumference ~553)
+                    const offset = 552.9 - (552.9 * score / 100);
+                    elements.scoreCircle.style.strokeDashoffset = offset;
                 }
             }, 30);
         });
@@ -82,8 +146,10 @@
             const currentInput = elements.ideaInput.value.trim();
             const savedIdea = localStorage.getItem('userBusinessIdea');
             const finalIdea = currentInput || savedIdea || "New Venture";
+            
             localStorage.setItem('userBusinessIdea', finalIdea);
 
+            // Check for God Mode Bypass
             if (localStorage.getItem('launchAI_GodMode') === 'true') {
                 window.location.href = 'auth.html';
             } else {
