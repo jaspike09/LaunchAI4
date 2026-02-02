@@ -7,17 +7,24 @@ let currentAgent = "CoachAI";
 
 /**
  * INIT: Runs when the page loads.
+ * Forces a session check BEFORE rendering data.
  */
 async function init() {
-    const { data: { user } } = await _supabase.auth.getUser();
+    // 1. Immediate Session Check
+    const { data: { session } } = await _supabase.auth.getSession();
     
-    if (!user) {
+    if (!session) {
+        // No session found? Kick to auth immediately.
         window.location.href = 'auth.html';
-        return;
+        return; 
     }
 
+    const user = session.user;
+
+    // 2. UI: Set User Name
     document.getElementById('userNameDisplay').innerText = user.email.split('@')[0];
 
+    // 3. UI: Check for God Mode (Architect Tier)
     if (localStorage.getItem('launchAI_GodMode') === 'true') {
         const badge = document.getElementById('tierBadge');
         document.getElementById('adminReset').classList.remove('hidden');
@@ -26,6 +33,7 @@ async function init() {
         document.getElementById('tierName').innerText = "Architect Tier";
     }
 
+    // 4. CLOUD LOAD: Get profile and roadmap
     const { data, error } = await _supabase
         .from('profiles')
         .select('*')
@@ -41,6 +49,7 @@ async function init() {
             renderRoadmap(data.roadmap);
         }
     } else {
+        // Fallback to local if brand new user
         const localIdea = localStorage.getItem('userBusinessIdea') || "Your Venture";
         document.getElementById('ideaDisplay').innerText = localIdea;
         if (localIdea !== "Your Venture") saveToCloud(localIdea, "idea");
