@@ -59,3 +59,19 @@ async function sendMessage() {
         document.getElementById(loaderId).innerText = "Board Offline.";
     }
 }
+async function saveToCloud(ideaText) {
+    const { data: { user } } = await _supabase.auth.getUser();
+    
+    if (user) {
+        const { error } = await _supabase
+            .from('profiles')
+            .upsert({ 
+                id: user.id, 
+                business_idea: ideaText, 
+                updated_at: new Date() 
+            });
+            
+        if (error) console.error("Cloud Save Error:", error);
+        else console.log("Business Vision Secured in Cloud.");
+    }
+}
