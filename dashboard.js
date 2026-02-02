@@ -167,13 +167,38 @@ function saveBoardContext(agent, dialogue) {
     updateUIFromHistory();
 }
 
-function updateUIFromHistory() {
+async function updateUIFromHistory() {
+    // 1. Calculate Agent Progress (50% weight)
     const history = JSON.parse(localStorage.getItem('gems_history') || '[]');
     const uniqueAgents = new Set(history.map(h => h.agent)).size;
-    const pct = Math.round((uniqueAgents / 6) * 100);
-    if(document.getElementById('progressBar')) document.getElementById('progressBar').style.width = pct + '%';
-    document.getElementById('progressPctText').innerText = pct + '%';
-    document.getElementById('taskCountText').innerText = `${uniqueAgents} / 6`;
+    const agentScore = (uniqueAgents / 6) * 50; 
+
+    // 2. Calculate Task Progress (50% weight)
+    let taskScore = 0;
+    const { data: { user } } = await _supabase.auth.getUser();
+    if (user) {
+        const { data } = await _supabase.from('profiles').select('roadmap').eq('id', user.id).single();
+        if (data && data.roadmap && data.roadmap.length > 0) {
+            const completedTasks = data.roadmap.filter(t => t.completed).length;
+            taskScore = (completedTasks / data.roadmap.length) * 50;
+            
+            // Update the task count display (e.g., 3 / 10 tasks)
+            document.getElementById('taskCountText').innerText = `${completedTasks} / ${data.roadmap.length}`;
+        }
+    }
+
+    // 3. Combine and Update UI
+    const totalProgress = Math.round(agentScore + taskScore);
+    const bar = document.getElementById('progressBar');
+    
+    if (bar) {
+        bar.style.width = totalProgress + '%';
+        // Change color based on progress
+        if (totalProgress > 70) bar.className = "bg-green-500 h-2 rounded-full transition-all duration-500";
+        else if (totalProgress > 30) bar.className = "bg-blue-500 h-2 rounded-full transition-all duration-500";
+    }
+    
+    document.getElementById('progressPctText').innerText = totalProgress + '%';
 }
 
 function openChat(agent) {
