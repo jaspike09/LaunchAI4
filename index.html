@@ -9,56 +9,90 @@
 <body class="bg-slate-900 text-white font-sans">
 
     <nav class="p-6 flex justify-between items-center">
-        <div id="logo" onclick="handleLogoClick()" class="cursor-pointer select-none">
+        <div id="mainLogo" class="cursor-pointer select-none">
             <h1 class="text-2xl font-bold tracking-tighter text-blue-500">LAUNCH<span class="text-white">AI</span></h1>
         </div>
     </nav>
 
     <main class="max-w-4xl mx-auto mt-20 text-center px-4">
-        <h2 class="text-5xl font-extrabold mb-6">Validate your vision in seconds.</h2>
-        <p class="text-slate-400 text-xl mb-10">Get the GEMS Board of AI experts to audit your next big idea.</p>
-
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <button onclick="checkAccess('dashboard.html')" class="bg-blue-600 hover:bg-blue-700 px-8 py-4 rounded-full font-bold text-lg transition">
-                Start Launching
-            </button>
+        <div id="inputContainer">
+            <h2 class="text-5xl font-extrabold mb-6">Validate your vision in seconds.</h2>
+            <textarea id="ideaInput" class="w-full bg-slate-800 p-4 rounded-xl mb-6 text-white" placeholder="Describe your idea..."></textarea>
             
-            <button onclick="checkAccess('success.html')" class="bg-slate-800 hover:bg-slate-700 px-8 py-4 rounded-full font-bold text-lg transition">
-                Go God Mode
-            </button>
+            <button id="validateBtn" class="bg-green-600 px-8 py-4 rounded-full font-bold mb-10">Validate Vision</button>
+        </div>
+
+        <div id="resultsArea" class="hidden">
+            <h2 class="text-3xl font-bold mb-4">Score: <span id="scoreText">0</span>%</h2>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button id="founderBtn" class="bg-blue-600 px-8 py-4 rounded-full font-bold transition">
+                    Start Launching ($39)
+                </button>
+                <button id="growthBtn" class="bg-slate-800 px-8 py-4 rounded-full font-bold transition">
+                    Go God Mode ($99)
+                </button>
+            </div>
         </div>
     </main>
 
     <script>
-        // --- 1. LOGO CLICKER LOGIC ---
-        let clickCount = 0;
-        function handleLogoClick() {
-            clickCount++;
-            console.log("Clicks:", clickCount);
-            
-            if (clickCount >= 5) {
+        const elements = {
+            ideaInput: document.getElementById('ideaInput'),
+            validateBtn: document.getElementById('validateBtn'),
+            resultsArea: document.getElementById('resultsArea'),
+            scoreText: document.getElementById('scoreText'),
+            founderBtn: document.getElementById('founderBtn'),
+            growthBtn: document.getElementById('growthBtn'),
+            mainLogo: document.getElementById('mainLogo')
+        };
+
+        // 1. LOGO TRIGGER
+        let logoClicks = 0;
+        let logoTimer;
+        elements.mainLogo.addEventListener('click', () => {
+            logoClicks++;
+            clearTimeout(logoTimer);
+            logoTimer = setTimeout(() => { logoClicks = 0; }, 2000);
+
+            if (logoClicks === 5) {
                 localStorage.setItem('launchAI_GodMode', 'true');
-                alert("🚀 GOD MODE ACTIVATED: Stripe Bypassed.");
-                // Optional: Change logo color to show it worked
-                document.querySelector('#logo h1').style.color = '#22c55e'; // Green
-                clickCount = 0; // reset
+                alert("🚀 BYPASS ARMED: 'Go God Mode' will now skip Stripe.");
+                document.querySelector('#mainLogo span').style.color = '#22c55e'; 
+                logoClicks = 0;
+            }
+        });
+
+        // 2. REDIRECT LOGIC
+        function handleAccess(tier) {
+            const isGodMode = localStorage.getItem('launchAI_GodMode') === 'true';
+
+            if (tier === 'Growth' && isGodMode) {
+                window.location.href = 'success.html';
+            } else {
+                const links = {
+                    'Founder': "https://buy.stripe.com/dRmbJ01vhgRL8Am8WD7Re03",
+                    'Growth': "https://buy.stripe.com/cNi4gy6PB8lf3g22yf7Re02"
+                };
+                window.location.href = links[tier];
             }
         }
 
-        // --- 2. THE GATEKEEPER BYPASS ---
-        function checkAccess(destination) {
-            const isGodMode = localStorage.getItem('launchAI_GodMode') === 'true';
-            
-            if (isGodMode) {
-                // BYPASS ACTIVE: Go straight to your page
-                console.log("Bypassing Stripe for:", destination);
-                window.location.href = destination;
-            } else {
-                // BYPASS INACTIVE: Go to Stripe
-                console.log("Redirecting to Stripe...");
-                window.location.href = 'https://buy.stripe.com/YOUR_STRIPE_LINK_HERE';
-            }
-        }
+        elements.founderBtn.addEventListener('click', () => handleAccess('Founder'));
+        elements.growthBtn.addEventListener('click', () => handleAccess('Growth'));
+
+        // 3. VALIDATION ANIMATION
+        elements.validateBtn.addEventListener('click', () => {
+            if (!elements.ideaInput.value) return alert("Enter your vision first!");
+            document.getElementById('inputContainer').classList.add('hidden');
+            elements.resultsArea.classList.remove('hidden');
+
+            let count = 0;
+            let timer = setInterval(() => {
+                count++;
+                elements.scoreText.innerText = count;
+                if(count >= 80) clearInterval(timer);
+            }, 30);
+        });
     </script>
 </body>
 </html>
