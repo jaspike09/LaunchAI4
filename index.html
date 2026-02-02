@@ -1,35 +1,76 @@
-/**
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LaunchAI | Validate Your Vision</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+<body class="bg-slate-950 text-white">
+
+    <div id="app">
+        <h1 onclick="handleLogoClick()">LaunchAI</h1>
+        <input id="ideaInput" placeholder="Enter your idea...">
+        <button id="validateBtn">Validate Idea</button>
+        
+        <div id="resultsArea" class="hidden">
+            <span id="scoreText">0</span>
+            <h2 id="verdictTitle"></h2>
+            <p id="verdictDesc"></p>
+            <button id="founderBtn">Founder Tier</button>
+            <button id="growthBtn">Growth Tier</button>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * 1. ELEMENTS SETUP
+         */
+        const elements = {
+            ideaInput: document.getElementById('ideaInput'),
+            validateBtn: document.getElementById('validateBtn'),
+            resultsArea: document.getElementById('resultsArea'),
+            scoreText: document.getElementById('scoreText'),
+            scoreCircle: document.getElementById('scoreCircle'), // Make sure this ID exists in your SVG
+            founderBtn: document.getElementById('founderBtn'),
+            growthBtn: document.getElementById('growthBtn'),
+            inputContainer: document.getElementById('app')
+        };
+
+        // Logo click counter for God Mode
+        let logoClicks = 0;
+        function handleLogoClick() {
+            logoClicks++;
+            if (logoClicks === 5) {
+                localStorage.setItem('launchAI_GodMode', 'true');
+                alert("ARCHITECT ACCESS GRANTED.");
+            }
+        }
+
+        /**
          * 2. ANALYSIS LOGIC
          */
         elements.validateBtn.addEventListener('click', () => {
             const idea = elements.ideaInput.value.trim();
-
             if (!idea) {
                 alert("Please describe your vision first!");
                 return;
             }
 
-            // CRITICAL ADDITION: Save idea immediately when they validate
             localStorage.setItem('userBusinessIdea', idea);
-
             elements.inputContainer.classList.add('analyzing-active');
             elements.resultsArea.classList.remove('hidden');
-            elements.resultsArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
             let score = 0;
-            const targetScore = Math.floor(Math.random() * 15) + 82; 
-            
+            const targetScore = Math.floor(Math.random() * 15) + 82;
             const interval = setInterval(() => {
                 if (score >= targetScore) {
                     clearInterval(interval);
-                    elements.inputContainer.classList.remove('analyzing-active');
                     document.getElementById('verdictTitle').innerText = "Analysis: High Potential";
                     document.getElementById('verdictDesc').innerText = "Market data shows a strong path to revenue. Your roadmap is ready.";
                 } else {
                     score++;
                     elements.scoreText.innerText = score;
-                    const offset = 377 - (377 * score / 100);
-                    elements.scoreCircle.style.strokeDashoffset = offset;
                 }
             }, 30);
         });
@@ -38,16 +79,13 @@
          * 3. ACCESS & STRIPE LOGIC
          */
         function handleAccess(tier) {
-            // Get the latest value from input OR fall back to what was saved during validation
             const currentInput = elements.ideaInput.value.trim();
             const savedIdea = localStorage.getItem('userBusinessIdea');
             const finalIdea = currentInput || savedIdea || "New Venture";
-            
             localStorage.setItem('userBusinessIdea', finalIdea);
 
             if (localStorage.getItem('launchAI_GodMode') === 'true') {
-                // God Mode users skip Stripe and go to Auth
-                window.location.href = 'auth.html'; 
+                window.location.href = 'auth.html';
             } else {
                 const links = {
                     'Founder': "https://buy.stripe.com/dRmbJ01vhgRL8Am8WD7Re03",
@@ -59,3 +97,6 @@
 
         elements.founderBtn.addEventListener('click', () => handleAccess('Founder'));
         elements.growthBtn.addEventListener('click', () => handleAccess('Growth'));
+    </script>
+</body>
+</html>
