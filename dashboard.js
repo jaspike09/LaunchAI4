@@ -156,7 +156,9 @@ async function toggleTask(index) {
     const { data } = await _supabase.from('profiles').select('roadmap').eq('id', user.id).single();
     let roadmap = data.roadmap;
     roadmap[index].completed = !roadmap[index].completed;
-    syncRoadmapToCloud(roadmap);
+    
+    await syncRoadmapToCloud(roadmap);
+    updateUIFromHistory(); // <--- Add this line here!
 }
 
 // 4. UI UTILITIES
