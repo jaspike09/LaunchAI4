@@ -1,0 +1,9 @@
+{
+  "name": "launch-ai",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@google/generative-ai": "^0.2.1",
+    "@supabase/supabase-js": "^2.39.7"
+  }
+}
