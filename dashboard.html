@@ -143,6 +143,35 @@
             document.getElementById(id).classList.remove('hidden');
             document.getElementById('sectionTitle').innerText = (id === 'chatArea') ? currentAgent : id.charAt(0).toUpperCase() + id.slice(1);
         }
+        async function askTheBoard(agentName) {
+    const userMessage = prompt(`Message for the ${agentName}:`);
+    if (!userMessage) return;
+
+    const idea = localStorage.getItem('userBusinessIdea') || "Stealth Startup";
+
+    // Show a loading state
+    console.log(`Consulting the ${agentName}...`);
+
+    try {
+        const response = await fetch('/api/architect', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                message: userMessage,
+                agent: agentName,
+                idea: idea
+            })
+        });
+
+        const data = await response.json();
+        
+        // Display the AI response (You can alert it or put it in a <div>)
+        alert(`${agentName} says: \n\n${data.text}`);
+        
+    } catch (err) {
+        alert("The Board is currently in a closed meeting. (Error: API Connection)");
+    }
+}
 
         function openChat(agent) {
             currentAgent = agent;
