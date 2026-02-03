@@ -178,16 +178,29 @@
             if(document.getElementById('link-' + id)) document.getElementById('link-' + id).classList.add('active-link');
         }
 
-        function openChat(agent) {
-            currentAgent = agent;
-            showSection('chatArea');
-            const box = document.getElementById('chatBox');
-            box.innerHTML = `
-                <div class="flex flex-col items-center justify-center h-full text-slate-500 space-y-4">
-                    <i class="fa-solid fa-comments text-4xl opacity-20"></i>
-                    <p class="text-sm italic">You are now speaking with the ${agent}.</p>
-                </div>`;
-        }
+        async function openChat(agent) {
+    currentAgent = agent;
+    showSection('chatArea');
+    const box = document.getElementById('chatBox');
+    box.innerHTML = `<div class="text-center py-4 text-xs text-slate-500 italic">Retriving secure archives...</div>`;
+
+    // Fetch history from Supabase
+    const { data: history, error } = await _supabase
+        .from('chat_history')
+        .select('*')
+        .eq('user_id', userProfile.id)
+        .eq('agent_name', agent)
+        .order('created_at', { ascending: true });
+
+    box.innerHTML = ''; // Clear loading text
+
+    if (history && history.length > 0) {
+        history.forEach(item => renderMessage(item.sender, item.message, item.agent_name));
+    } else {
+        box.innerHTML = `<div class="text-center py-10 opacity-30 italic text-sm">No previous briefing found. Start the conversation.</div>`;
+    }
+    box.scrollTop = box.scrollHeight;
+}
 
         async function sendMessage() {
             const input = document.getElementById('chatInput');
