@@ -23,12 +23,12 @@
             Launch<span class="text-blue-500">AI</span>
         </div>
         
-        <nav class="flex-1 mt-6 space-y-1 overflow-y-auto max-h-[60vh]">
+        <nav class="flex-1 mt-6 space-y-1 overflow-y-auto">
             <a href="#" id="link-overview" onclick="showSection('overview')" class="sidebar-link active-link flex items-center px-6 py-4 transition">
                 <i class="fa-solid fa-chart-line mr-3"></i> Mission Control
             </a>
             <a href="#" id="link-roadmap" onclick="showSection('roadmap')" class="sidebar-link flex items-center px-6 py-4 transition">
-                <i class="fa-solid fa-map-location-dot mr-3"></i> 30-Day Roadmap
+                <i class="fa-solid fa-map-location-dot mr-3"></i> <span id="roadmapNavText">Roadmap</span>
             </a>
             
             <div class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest mt-4 border-t border-white/5">The GEMS Board</div>
@@ -62,39 +62,42 @@
         <header class="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-slate-950/50 backdrop-blur-sm">
             <h2 id="sectionTitle" class="text-lg font-semibold text-slate-200">Mission Control</h2>
             <div class="flex items-center space-x-4">
-                <span class="text-xs bg-green-500/10 text-green-400 px-2 py-1 rounded border border-green-500/20">System Active</span>
+                <span class="text-xs bg-green-500/10 text-green-400 px-2 py-1 rounded border border-green-500/20" id="currentPhaseBadge">Phase 1: Validation</span>
             </div>
         </header>
 
         <div class="flex-1 overflow-y-auto">
-            <div id="overview" class="p-8 space-y-8 animate-in fade-in duration-500">
+            <div id="overview" class="p-8 space-y-8">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="glass-panel p-6 rounded-2xl text-center">
-                        <p class="text-slate-400 text-sm mb-1">Launch Progress</p>
-                        <h3 class="text-3xl font-bold text-blue-400" id="progressPctText">0%</h3>
+                        <p class="text-slate-400 text-sm mb-1">Journey Progress</p>
+                        <h3 class="text-3xl font-bold text-blue-400" id="progressPctText">Day 1</h3>
                     </div>
                     <div class="glass-panel p-6 rounded-2xl text-center">
-                        <p class="text-slate-400 text-sm mb-1">AI Tasks Completed</p>
-                        <h3 class="text-3xl font-bold text-green-400" id="taskCountText">0 / 6</h3>
+                        <p class="text-slate-400 text-sm mb-1">Active Week</p>
+                        <h3 class="text-3xl font-bold text-green-400" id="currentWeekText">Week 1</h3>
                     </div>
                 </div>
 
                 <div class="glass-panel p-8 rounded-3xl border-blue-500/20">
-                    <h4 class="text-xl font-bold mb-4">Welcome, <span id="userNameDisplay">...</span></h4>
-                    <p class="text-slate-300 leading-relaxed mb-6">The board is ready for <span class="text-blue-400 font-semibold" id="ideaDisplay">Your Venture</span>.</p>
-                    <button onclick="showSection('roadmap')" class="bg-blue-600 px-6 py-3 rounded-xl font-bold hover:bg-blue-500 transition">View My Roadmap</button>
+                    <h4 class="text-xl font-bold mb-4">Welcome, <span id="userNameDisplay">Founder</span></h4>
+                    <p class="text-slate-300 leading-relaxed mb-6">Board Analysis complete for: <span class="text-blue-400 font-semibold" id="ideaDisplay">...</span></p>
+                    <button onclick="showSection('roadmap')" class="bg-blue-600 px-6 py-3 rounded-xl font-bold hover:bg-blue-500 transition">Execute Today's Action</button>
                 </div>
             </div>
 
             <div id="roadmap" class="hidden p-8 space-y-6">
-                <h3 class="text-2xl font-bold">The 30-Day Empire Blueprint</h3>
+                <div class="flex justify-between items-center">
+                    <h3 class="text-2xl font-bold">4-Week Launch Protocol</h3>
+                    <span class="text-xs font-mono text-slate-500" id="roadmapDateRange"></span>
+                </div>
                 <div id="roadmapList" class="space-y-4"></div>
             </div>
 
             <div id="chatArea" class="hidden p-8 flex flex-col h-full max-w-4xl mx-auto w-full">
                 <div id="chatBox" class="flex-1 glass-panel rounded-3xl p-6 mb-4 overflow-y-auto space-y-4 shadow-inner min-h-[400px]"></div>
                 <div class="flex gap-2 mb-4">
-                    <input type="text" id="chatInput" placeholder="Send instructions..." class="flex-1 bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-blue-500 transition">
+                    <input type="text" id="chatInput" placeholder="Send instructions to the board..." class="flex-1 bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-blue-500 transition">
                     <button onclick="sendMessage()" class="bg-blue-600 px-8 rounded-2xl font-bold hover:bg-blue-500 transition">
                         <i class="fa-solid fa-paper-plane"></i>
                     </button>
@@ -104,83 +107,87 @@
     </main>
 
     <script>
-        // --- 1. CONFIGURATION ---
+        // --- 1. CONFIG & DATA ---
         const SUPABASE_URL = 'https://yvgzyymjymrgjhhthgtj.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2Z3p5eW1qeW1yZ2poaHRoZ3RqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5OTc1MzIsImV4cCI6MjA4NTU3MzUzMn0.814FVde267XILaw-VA76Yuk6Y6BVQpCr_5fAF2KtBFw';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let currentAgent = "MentorAI";
+        let userProfile = null;
+
+        const TASK_PROTOCOL = [
+            { week: 1, title: "Market Validation", desc: "Define your ICP and conduct 5 problem interviews.", days: "Day 1-7" },
+            { week: 2, title: "MVP Architecture", desc: "Build the 'No-Code' version of your core promise.", days: "Day 8-14" },
+            { week: 3, title: "Acquisition Setup", desc: "Launch landing page and run $50 in test ads.", days: "Day 15-21" },
+            { week: 4, title: "Scaling & Closing", desc: "Onboard first 5 paying users and refine pitch.", days: "Day 22-30" }
+        ];
 
         // --- 2. INITIALIZATION ---
         async function init() {
             const { data: { session } } = await _supabase.auth.getSession();
-            if (!session) {
-                window.location.href = 'auth.html';
-                return; 
-            }
+            if (!session) { window.location.href = 'auth.html'; return; }
 
             const user = session.user;
             document.getElementById('userNameDisplay').innerText = user.email.split('@')[0];
 
-            // God Mode Check
-            if (localStorage.getItem('launchAI_GodMode') === 'true') {
-                document.getElementById('tierBadge').innerText = "A";
-                document.getElementById('tierBadge').classList.replace('bg-blue-600', 'bg-purple-600');
-                document.getElementById('tierName').innerText = "Architect Tier";
-            }
-
-            // Load Business Idea
+            // Fetch Profile State
             const { data } = await _supabase.from('profiles').select('*').eq('id', user.id).single();
-            document.getElementById('ideaDisplay').innerText = data?.business_idea || localStorage.getItem('userBusinessIdea') || "Your Venture";
+            userProfile = data;
+
+            document.getElementById('ideaDisplay').innerText = data?.business_idea || "Your Venture";
             
-            if (data?.roadmap) renderRoadmap(data.roadmap);
-            updateProgress(data?.roadmap || []);
+            calculateJourney(data?.created_at);
+            renderRoadmap();
         }
 
-        // --- 3. UI LOGIC ---
+        // --- 3. DYNAMIC LOGIC (State Management) ---
+        function calculateJourney(signupDate) {
+            const start = signupDate ? new Date(signupDate) : new Date();
+            const now = new Date();
+            const diffDays = Math.ceil((now - start) / (1000 * 60 * 60 * 24)) || 1;
+            const week = Math.ceil(diffDays / 7);
+
+            document.getElementById('progressPctText').innerText = `Day ${diffDays}`;
+            document.getElementById('currentWeekText').innerText = `Week ${week}`;
+            document.getElementById('currentPhaseBadge').innerText = `Phase ${week}: ${TASK_PROTOCOL[week-1]?.title || "Scaling"}`;
+            
+            return { week, diffDays };
+        }
+
+        function renderRoadmap() {
+            const list = document.getElementById('roadmapList');
+            list.innerHTML = TASK_PROTOCOL.map((t) => `
+                <div class="glass-panel p-6 rounded-2xl flex items-center justify-between border-l-4 border-blue-600/50">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-1">
+                            <span class="text-[10px] font-bold bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded uppercase">Week ${t.week}</span>
+                            <p class="font-bold text-lg">${t.title}</p>
+                        </div>
+                        <p class="text-sm text-slate-400">${t.desc}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-xs font-mono text-slate-500">${t.days}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // --- 4. UI & CHAT ---
         function showSection(id) {
             ['overview', 'roadmap', 'chatArea'].forEach(s => document.getElementById(s).classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
             document.getElementById('sectionTitle').innerText = (id === 'chatArea') ? currentAgent : id.charAt(0).toUpperCase() + id.slice(1);
         }
-        async function askTheBoard(agentName) {
-    const userMessage = prompt(`Message for the ${agentName}:`);
-    if (!userMessage) return;
-
-    // 1. Get the stored idea (provide a fallback so it's never 'undefined')
-    const idea = localStorage.getItem('userBusinessIdea') || "A new startup";
-
-    try {
-        const response = await fetch('/api/architect', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                message: userMessage,
-                agent: agentName,
-                idea: idea
-            })
-        });
-
-        const data = await response.json();
-        
-        // 2. ERROR FIX: Check if data.text exists before using it
-        if (data && data.text) {
-            alert(`${agentName} says: \n\n${data.text}`);
-        } else {
-            console.error("Response structure mismatch:", data);
-            alert("The Board sent a blank memo. Check the console.");
-        }
-        
-    } catch (err) {
-        alert("Connection lost. Make sure your Vercel Environment Variables are set!");
-    }
-}
 
         function openChat(agent) {
             currentAgent = agent;
             showSection('chatArea');
             const chatBox = document.getElementById('chatBox');
-            chatBox.innerHTML = `<div class="bg-blue-600/10 p-4 rounded-2xl mb-4 border border-blue-500/20"><p class="text-blue-400 font-bold">${agent}:</p><p>Awaiting instructions for the venture...</p></div>`;
+            chatBox.innerHTML = `
+                <div class="bg-blue-600/10 p-4 rounded-2xl mb-4 border border-blue-500/20">
+                    <p class="text-blue-400 font-bold">${agent}:</p>
+                    <p class="text-sm">I've reviewed your progress for ${document.getElementById('currentWeekText').innerText}. How can I assist with your mission today?</p>
+                </div>`;
         }
 
         async function sendMessage() {
@@ -192,36 +199,24 @@
             chatBox.innerHTML += `<div class="bg-white/5 p-4 rounded-2xl text-right mb-4 ml-12 border border-white/5"><p>${text}</p></div>`;
             input.value = "";
 
-            // NOTE: Make sure your Vercel /api/architect is deployed for the AI response to work!
             try {
+                const journey = calculateJourney(userProfile?.created_at);
                 const response = await fetch('/api/architect', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: text, agent: currentAgent, idea: document.getElementById('ideaDisplay').innerText })
+                    body: JSON.stringify({ 
+                        message: text, 
+                        agent: currentAgent, 
+                        idea: document.getElementById('ideaDisplay').innerText,
+                        context: `User is in Week ${journey.week}, Day ${journey.diffDays}.`
+                    })
                 });
                 const data = await response.json();
                 chatBox.innerHTML += `<div class="bg-blue-600/10 p-4 rounded-2xl mb-4 mr-12 border border-blue-500/20"><p class="text-blue-400 font-bold">${currentAgent}:</p><p>${data.text}</p></div>`;
             } catch (e) {
-                chatBox.innerHTML += `<p class="text-red-400 text-xs">Connection to board interrupted.</p>`;
+                chatBox.innerHTML += `<p class="text-red-400 text-xs">Signal lost. Check Vercel logs.</p>`;
             }
             chatBox.scrollTop = chatBox.scrollHeight;
-        }
-
-        function renderRoadmap(tasks) {
-            const list = document.getElementById('roadmapList');
-            list.innerHTML = tasks.map((t, i) => `
-                <div class="glass-panel p-4 rounded-xl flex items-center justify-between border-l-4 ${t.completed ? 'border-green-500' : 'border-blue-500'}">
-                    <div><p class="font-bold">${t.title}</p><p class="text-xs text-slate-500">${t.days}</p></div>
-                    <input type="checkbox" ${t.completed ? 'checked' : ''} class="w-5 h-5">
-                </div>
-            `).join('');
-        }
-
-        function updateProgress(roadmap) {
-            const completed = roadmap.filter(t => t.completed).length;
-            const total = roadmap.length || 1;
-            document.getElementById('progressPctText').innerText = Math.round((completed / total) * 100) + '%';
-            document.getElementById('taskCountText').innerText = `${completed} / ${roadmap.length}`;
         }
 
         async function logout() {
