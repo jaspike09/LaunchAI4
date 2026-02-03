@@ -81,18 +81,24 @@
         elements.growthBtn.addEventListener('click', () => handleAccess('Growth'));
 
         // 3. VALIDATION ANIMATION
-        elements.validateBtn.addEventListener('click', () => {
-            if (!elements.ideaInput.value) return alert("Enter your vision first!");
-            document.getElementById('inputContainer').classList.add('hidden');
-            elements.resultsArea.classList.remove('hidden');
+        // ... (Inside your script tag, replace the validation logic)
+elements.validateBtn.addEventListener('click', () => {
+    const idea = elements.ideaInput.value.trim();
+    if (!idea) return alert("Enter your vision first!");
 
-            let count = 0;
-            let timer = setInterval(() => {
-                count++;
-                elements.scoreText.innerText = count;
-                if(count >= 80) clearInterval(timer);
-            }, 30);
-        });
+    // SAVE THE IDEA CONSISTENTLY
+    localStorage.setItem('userBusinessIdea', idea);
+
+    document.getElementById('inputContainer').classList.add('hidden');
+    elements.resultsArea.classList.remove('hidden');
+
+    let count = 0;
+    let timer = setInterval(() => {
+        count++;
+        elements.scoreText.innerText = count;
+        if(count >= 85) clearInterval(timer);
+    }, 30);
+});
     </script>
 </body>
 </html>
