@@ -14,7 +14,7 @@ export default async function handler(req, res) {
     const { message, agent, idea } = req.body;
     
     // UPDATED FOR 2026 STABILITY
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
     const result = await model.generateContent({
       contents: [{ role: "user", parts: [{ text: `You are the ${agent} for ${idea}. ${message}` }] }],
