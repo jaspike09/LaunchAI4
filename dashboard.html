@@ -11,9 +11,6 @@
         .sidebar-link:hover { background: rgba(59, 130, 246, 0.1); color: #60a5fa; }
         .active-link { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border-right: 4px solid #3b82f6; }
         .glass-panel { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05); }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
         .loading-dots::after { content: '...'; animation: blink 1.5s infinite; }
         @keyframes blink { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
         .bounce-in { animation: fadeInUp 0.3s ease-out; }
@@ -34,25 +31,13 @@
             <a href="#" id="link-roadmap" onclick="showSection('roadmap')" class="sidebar-link flex items-center px-6 py-4 transition">
                 <i class="fa-solid fa-map-location-dot mr-3"></i> Roadmap
             </a>
-            
             <div class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest mt-4 border-t border-white/5">The GEMS Board</div>
-            
-            <a href="#" onclick="openChat('MentorAI')" class="sidebar-link flex items-center px-6 py-4 transition">
-                <i class="fa-solid fa-user-tie text-blue-400 mr-3"></i> MentorAI
-            </a>
-            <a href="#" onclick="openChat('CoachAI')" class="sidebar-link flex items-center px-6 py-4 transition">
-                <i class="fa-solid fa-stopwatch text-green-400 mr-3"></i> CoachAI
-            </a>
-            <a href="#" onclick="openChat('MarketingAI')" class="sidebar-link flex items-center px-6 py-4 transition">
-                <i class="fa-solid fa-bullhorn text-orange-400 mr-3"></i> MarketingAI
-            </a>
-            <a href="#" onclick="openChat('LawyerAI')" class="sidebar-link flex items-center px-6 py-4 transition">
-                <i class="fa-solid fa-gavel text-slate-300 mr-3"></i> LawyerAI
-            </a>
+            <a href="#" onclick="openChat('MentorAI')" class="sidebar-link flex items-center px-6 py-4 transition"><i class="fa-solid fa-user-tie text-blue-400 mr-3"></i> MentorAI</a>
+            <a href="#" onclick="openChat('MarketingAI')" class="sidebar-link flex items-center px-6 py-4 transition"><i class="fa-solid fa-bullhorn text-orange-400 mr-3"></i> MarketingAI</a>
         </nav>
 
-        <div class="p-6 border-t border-white/5 space-y-4">
-            <button onclick="logout()" class="w-full py-2 border border-slate-700 rounded-lg text-[10px] text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition uppercase font-bold tracking-tighter">
+        <div class="p-6 border-t border-white/5">
+            <button onclick="logout()" class="w-full py-2 border border-slate-700 rounded-lg text-[10px] text-slate-400 hover:text-red-400 transition uppercase font-bold tracking-tighter">
                 Terminate Session
             </button>
         </div>
@@ -61,47 +46,23 @@
     <main class="flex-1 flex flex-col overflow-hidden bg-slate-900">
         <header class="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-slate-950/50 backdrop-blur-sm">
             <h2 id="sectionTitle" class="text-lg font-semibold text-slate-200">Mission Control</h2>
-            <div class="flex items-center gap-4">
-                <button id="clearBtn" onclick="clearCurrentHistory()" class="hidden text-[10px] text-slate-500 hover:text-red-400 uppercase font-bold tracking-widest transition">Clear Briefing</button>
-                <span id="currentPhaseBadge" class="text-[10px] bg-blue-500/10 text-blue-400 px-3 py-1 rounded-full border border-blue-500/20 font-bold uppercase tracking-wider">Loading...</span>
-            </div>
+            <button id="clearBtn" onclick="clearCurrentHistory()" class="hidden text-[10px] text-slate-500 hover:text-red-400 uppercase font-bold tracking-widest transition">Clear Briefing</button>
         </header>
 
         <div class="flex-1 overflow-y-auto relative">
-            
             <div id="overview" class="p-8 space-y-8">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="glass-panel p-6 rounded-2xl border-l-4 border-blue-500">
-                        <p class="text-slate-400 text-xs font-bold uppercase mb-1">Status</p>
-                        <h3 class="text-2xl font-bold" id="progressPctText">---</h3>
-                    </div>
-                    <div class="glass-panel p-6 rounded-2xl border-l-4 border-green-500">
-                        <p class="text-slate-400 text-xs font-bold uppercase mb-1">Active Week</p>
-                        <h3 class="text-2xl font-bold" id="currentWeekText">---</h3>
-                    </div>
-                </div>
-
                 <div class="glass-panel p-8 rounded-3xl relative overflow-hidden">
-                    <div class="relative z-10">
-                        <h4 class="text-2xl font-bold mb-2">Welcome, <span id="userNameDisplay" class="text-blue-400">Founder</span></h4>
-                        <p class="text-slate-400 mb-6 max-w-xl">Strategy engaged for: <span class="text-white italic font-medium" id="ideaDisplay">Connecting to database...</span></p>
-                        <button onclick="showSection('roadmap')" class="bg-blue-600 px-8 py-3 rounded-xl font-bold hover:bg-blue-500 transition shadow-lg shadow-blue-600/20">View Roadmap</button>
-                    </div>
-                    <i class="fa-solid fa-rocket absolute -bottom-4 -right-4 text-9xl text-white/5 -rotate-12"></i>
+                    <h4 class="text-2xl font-bold mb-2">Welcome, <span id="userNameDisplay" class="text-blue-400">Founder</span></h4>
+                    <p class="text-slate-400">Strategy engaged for: <span class="text-white italic font-medium" id="ideaDisplay">Connecting...</span></p>
                 </div>
-            </div>
-
-            <div id="roadmap" class="hidden p-8 space-y-6">
-                <h3 class="text-2xl font-bold">Launch Protocol</h3>
-                <div id="roadmapList" class="space-y-4"></div>
             </div>
 
             <div id="chatArea" class="hidden h-full flex flex-col">
-                <div id="chatBox" class="flex-1 p-8 overflow-y-auto space-y-6 scroll-smooth"></div>
+                <div id="chatBox" class="flex-1 p-8 overflow-y-auto space-y-6"></div>
                 <div class="p-6 bg-slate-950/50 border-t border-white/5">
                     <div class="max-w-4xl mx-auto flex gap-4">
-                        <input type="text" id="chatInput" placeholder="Message the board..." class="flex-1 bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-blue-500 transition shadow-inner text-white">
-                        <button onclick="sendMessage()" id="sendBtn" class="bg-blue-600 px-8 rounded-2xl font-bold hover:bg-blue-500 transition shadow-lg shadow-blue-600/20">
+                        <input type="text" id="chatInput" placeholder="Message the board..." class="flex-1 bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-blue-500 text-white">
+                        <button onclick="sendMessage()" class="bg-blue-600 px-8 rounded-2xl font-bold hover:bg-blue-500 transition shadow-lg shadow-blue-600/20">
                             <i class="fa-solid fa-paper-plane"></i>
                         </button>
                     </div>
@@ -112,172 +73,93 @@
 
     <script>
         const SUPABASE_URL = 'https://yvgzyymjymrgjhhthgtj.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2Z3p5eW1qeW1yZ2poaHRoZ3RqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5OTc1MzIsImV4cCI6MjA4NTU3MzUzMn0.814FVde267XILaw-VA76Yuk6Y6BVQpCr_5fAF2KtBFw';
+        const SUPABASE_KEY = 'YOUR_KEY_HERE'; // Replace with your actual key
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let currentAgent = "MentorAI";
-        let userProfile = null; // THIS IS THE KEY
+        let userProfile = null;
 
-        const TASK_PROTOCOL = [
-            { week: 1, title: "Market Validation", desc: "Identify ICP and conduct 5 problem interviews.", days: "Day 1-7" },
-            { week: 2, title: "MVP Architecture", desc: "Build the core promise using no-code tools.", days: "Day 8-14" },
-            { week: 3, title: "Acquisition Setup", desc: "Launch landing page and drive test traffic.", days: "Day 15-21" },
-            { week: 4, title: "Scaling & Closing", desc: "Onboard 5 paying users and refine the pitch.", days: "Day 22-30" }
-        ];
-
-        // --- 1. INITIALIZATION (The Fix for 406/Null) ---
         async function init() {
-            try {
-                const { data: { session } } = await _supabase.auth.getSession();
-                if (!session) { 
-                    window.location.href = 'auth.html'; 
-                    return; 
-                }
+            const { data: { session } } = await _supabase.auth.getSession();
+            if (!session) return window.location.href = 'auth.html';
 
-                const user = session.user;
-                document.getElementById('userNameDisplay').innerText = user.email.split('@')[0];
+            const user = session.user;
+            document.getElementById('userNameDisplay').innerText = user.email.split('@')[0];
 
-                // Fetch Profile with a fallback to avoid the 406 crash
-                const { data: profile, error } = await _supabase
-                    .from('profiles')
-                    .select('*')
-                    .eq('id', user.id)
-                    .maybeSingle();
-
-                if (error) console.warn("Profile table error (check RLS):", error);
-
-                // Set userProfile even if the table fetch fails
-                userProfile = profile || { id: user.id, business_idea: "Stealth Project", created_at: new Date() };
-
-                document.getElementById('ideaDisplay').innerText = userProfile.business_idea || "Stealth Project";
-                
-                updateJourney(userProfile.created_at);
-                renderRoadmap();
-
-            } catch (err) {
-                console.error("Critical Init Error:", err);
-            }
+            const { data: profile } = await _supabase.from('profiles').select('*').eq('id', user.id).maybeSingle();
+            userProfile = profile || { id: user.id, business_idea: "Stealth Startup" };
+            document.getElementById('ideaDisplay').innerText = userProfile.business_idea;
         }
-
-        function updateJourney(signupDate) {
-            const start = signupDate ? new Date(signupDate) : new Date();
-            const diff = Math.ceil((new Date() - start) / (1000 * 60 * 60 * 24)) || 1;
-            const week = Math.min(Math.ceil(diff / 7), 4);
-            document.getElementById('progressPctText').innerText = `Day ${diff}`;
-            document.getElementById('currentWeekText').innerText = `Week ${week}`;
-            document.getElementById('currentPhaseBadge').innerText = `Phase ${week}: ${TASK_PROTOCOL[week-1].title}`;
-        }
-
-        function renderRoadmap() {
-            const list = document.getElementById('roadmapList');
-            list.innerHTML = TASK_PROTOCOL.map(t => `
-                <div class="glass-panel p-6 rounded-2xl flex items-center justify-between border-l-4 border-blue-600/50">
-                    <div>
-                        <span class="text-[10px] font-bold bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded uppercase">Week ${t.week}</span>
-                        <h4 class="font-bold text-lg mt-1">${t.title}</h4>
-                        <p class="text-sm text-slate-400">${t.desc}</p>
-                    </div>
-                    <p class="text-xs font-mono text-slate-500">${t.days}</p>
-                </div>
-            `).join('');
-        }
-
-        function showSection(id) {
-            ['overview', 'roadmap', 'chatArea'].forEach(s => document.getElementById(s).classList.add('hidden'));
-            document.getElementById(id).classList.remove('hidden');
-            document.getElementById('sectionTitle').innerText = (id === 'chatArea') ? currentAgent : id.charAt(0).toUpperCase() + id.slice(1);
-            document.getElementById('clearBtn').classList.toggle('hidden', id !== 'chatArea');
-        }
-
-        // --- 2. CHAT LOGIC (With Safety Guards) ---
 
         async function openChat(agent) {
-            if (!userProfile) return; // Prevent "null" error
+            if (!userProfile) return;
             currentAgent = agent;
             showSection('chatArea');
             const box = document.getElementById('chatBox');
-            box.innerHTML = `<div class="text-center py-10 text-xs text-slate-500 italic animate-pulse">Syncing with ${agent}...</div>`;
+            box.innerHTML = `<div class="text-center py-10 text-xs text-slate-500 italic">Establishing encrypted link with ${agent}...</div>`;
 
-            const { data: history, error } = await _supabase
-                .from('chat_history')
-                .select('*')
-                .eq('user_id', userProfile.id)
-                .eq('agent_name', agent)
-                .order('created_at', { ascending: true });
-
-            box.innerHTML = ''; 
-            if (history && history.length > 0) {
-                history.forEach(item => appendMessageToUI(item.sender === 'user' ? 'user' : 'ai', item.message, item.agent_name));
+            const { data: history } = await _supabase.from('chat_history').select('*').eq('user_id', userProfile.id).eq('agent_name', agent).order('created_at', { ascending: true });
+            
+            box.innerHTML = '';
+            if (history?.length) {
+                history.forEach(item => appendMsg(item.sender === 'user' ? 'user' : 'ai', item.message, item.agent_name));
             } else {
-                box.innerHTML = `<div class="text-center py-20 opacity-20 italic text-sm">No previous transcripts. Secure line open.</div>`;
+                box.innerHTML = `<div class="text-center py-20 opacity-20 italic text-sm">Secure line open. Awaiting briefing.</div>`;
             }
             box.scrollTop = box.scrollHeight;
         }
 
         async function sendMessage() {
-            if (!userProfile) return;
             const input = document.getElementById('chatInput');
             const msg = input.value.trim();
-            if (!msg) return;
+            if (!msg || !userProfile) return;
 
-            const box = document.getElementById('chatBox');
-            if (box.innerText.includes("No previous transcripts")) box.innerHTML = '';
-
-            appendMessageToUI('user', msg);
+            appendMsg('user', msg);
             input.value = '';
-            
-            // Save to DB
             await _supabase.from('chat_history').insert([{ user_id: userProfile.id, agent_name: currentAgent, message: msg, sender: 'user' }]);
 
             const loadId = 'load-' + Date.now();
-            box.innerHTML += `<div class="flex justify-start" id="${loadId}"><div class="glass-panel p-4 rounded-2xl text-blue-400 text-sm italic font-bold">${currentAgent} analyzing<span class="loading-dots"></span></div></div>`;
-            box.scrollTop = box.scrollHeight;
+            document.getElementById('chatBox').innerHTML += `<div id="${loadId}" class="flex justify-start"><div class="glass-panel p-4 rounded-2xl text-blue-400 text-sm italic font-bold">Board analyzing<span class="loading-dots"></span></div></div>`;
 
             try {
                 const res = await fetch('/api/architect', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: msg, agent: currentAgent, idea: document.getElementById('ideaDisplay').innerText })
+                    body: JSON.stringify({ message: msg, agent: currentAgent, idea: userProfile.business_idea })
                 });
                 const data = await res.json();
                 document.getElementById(loadId).remove();
 
-                const finalReply = data.text || "Board signal weak. Try again.";
-                appendMessageToUI('ai', finalReply, currentAgent);
-
+                const finalReply = data.text || "Connection unstable.";
+                appendMsg('ai', finalReply, currentAgent);
                 await _supabase.from('chat_history').insert([{ user_id: userProfile.id, agent_name: currentAgent, message: finalReply, sender: 'ai' }]);
             } catch (err) {
-                if(document.getElementById(loadId)) document.getElementById(loadId).innerHTML = `<div class="text-red-500 text-xs italic">Uplink failed.</div>`;
+                document.getElementById(loadId).innerHTML = `<div class="text-red-500 text-xs italic">Uplink failed.</div>`;
             }
         }
 
-        function appendMessageToUI(type, text, agentName = "") {
+        function appendMsg(type, text, agentName = "") {
             const box = document.getElementById('chatBox');
-            const wrapper = document.createElement('div');
-            wrapper.className = type === 'user' ? "flex justify-end bounce-in" : "flex justify-start bounce-in";
-            
-            wrapper.innerHTML = type === 'user' ? 
-                `<div class="bg-blue-600/20 border border-blue-500/30 p-4 rounded-2xl rounded-tr-none max-w-[80%] text-sm">${text}</div>` :
-                `<div class="glass-panel p-4 rounded-2xl rounded-tl-none border border-white/10 max-w-[80%] shadow-xl">
-                    <p class="text-xs font-bold text-blue-400 mb-2 uppercase tracking-tighter">${agentName}</p>
+            const wrap = document.createElement('div');
+            wrap.className = `flex ${type === 'user' ? 'justify-end' : 'justify-start'} bounce-in`;
+            wrap.innerHTML = type === 'user' ? 
+                `<div class="bg-blue-600/20 border border-blue-500/30 p-4 rounded-2xl max-w-[80%] text-sm">${text}</div>` :
+                `<div class="glass-panel p-4 rounded-2xl border border-white/10 max-w-[80%] shadow-xl">
+                    <p class="text-[10px] font-bold text-blue-400 mb-1 uppercase tracking-tighter">${agentName}</p>
                     <p class="text-sm text-slate-200 leading-relaxed">${text}</p>
                 </div>`;
-            
-            box.appendChild(wrapper);
+            box.appendChild(wrap);
             box.scrollTop = box.scrollHeight;
         }
 
-        async function clearCurrentHistory() {
-            if(!confirm("Wipe briefing history for " + currentAgent + "?")) return;
-            await _supabase.from('chat_history').delete().eq('user_id', userProfile.id).eq('agent_name', currentAgent);
-            openChat(currentAgent);
+        function showSection(id) {
+            ['overview', 'chatArea'].forEach(s => document.getElementById(s).classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+            document.getElementById('sectionTitle').innerText = (id === 'chatArea') ? currentAgent : "Mission Control";
+            document.getElementById('clearBtn').classList.toggle('hidden', id !== 'chatArea');
         }
 
-        async function logout() {
-            await _supabase.auth.signOut();
-            window.location.href = 'index.html';
-        }
-
+        async function logout() { await _supabase.auth.signOut(); window.location.href = 'index.html'; }
         document.getElementById('chatInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') sendMessage(); });
         init();
     </script>
