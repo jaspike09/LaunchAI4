@@ -1,24 +1,26 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export default async function handler(req, res) {
-    // 1. Security check
     if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
 
     try {
         const { message, agent, idea } = req.body;
         
-        // 2. Initialize with the stable v1 API version
+        if (!process.env.GEMINI_API_KEY) {
+            return res.status(500).json({ text: "System Error: API Key missing." });
+        }
+
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
         
-        // Use 'gemini-1.5-flash' with the explicit v1 version
+        // FORCE the stable v1 version to avoid 404s
         const model = genAI.getGenerativeModel(
             { model: "gemini-1.5-flash" }, 
             { apiVersion: 'v1' } 
         );
 
         const prompt = `Context: Startup Idea is "${idea}". 
-                        Role: You are ${agent}, a world-class startup expert. 
-                        Task: Respond to the founder's message: "${message}"`;
+                        Role: You are ${agent}, a world-class startup expert and board member. 
+                        Task: Provide a sharp, executive-level response to the founder's message: "${message}"`;
 
         const result = await model.generateContent(prompt);
         const response = await result.response;
@@ -28,9 +30,8 @@ export default async function handler(req, res) {
 
     } catch (error) {
         console.error("Gemini Backend Error:", error);
-        // This prevents the front-end from getting a "null" response
         return res.status(500).json({ 
-            text: "The board is currently in a closed session (API Error). Please verify your API Key and Model settings.",
+            text: "The board is currently in a closed session. Check your connection or API limits.",
             details: error.message 
         });
     }
