@@ -1,24 +1,44 @@
-import { google } from '@ai-sdk/google';
-import { generateText } from 'ai';
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export default async function handler(req, res) {
-    if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method Not Allowed' });
+    }
+
+    const { message, agent, idea } = req.body;
+
+    // 1. Validate API Key exists
+    if (!process.env.GEMINI_API_KEY) {
+        return res.status(500).json({ text: "Backend Error: Missing GEMINI_API_KEY environment variable." });
+    }
 
     try {
-        const { message, agent, idea } = req.body;
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        
+        // 2. Explicitly use v1 and the flash model
+        const model = genAI.getGenerativeModel(
+            { model: "gemini-1.5-flash" }, 
+            { apiVersion: 'v1' }
+        );
 
-        // The SDK automatically uses your GEMINI_API_KEY from environment variables
-        const { text } = await generateText({
-            model: google('gemini-1.5-flash'),
-            system: `You are ${agent}, an elite startup board member. Context: The idea is ${idea}.`,
-            prompt: message,
-            // Vercel AI SDK handles retries and settings automatically
-        });
+        const prompt = `
+            You are ${agent}, an elite startup consultant.
+            Founder's Business Idea: ${idea}
+            User Message: ${message}
+            Instructions: Provide a concise, high-level strategic response.
+        `;
+
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
 
         return res.status(200).json({ text });
 
     } catch (error) {
-        console.error("AI Gateway Error:", error);
-        return res.status(500).json({ text: "The board is unresponsive. Error: " + error.message });
+        console.error("Gemini System Error:", error);
+        return res.status(500).json({ 
+            text: "The Board is unreachable. Check Vercel logs.", 
+            details: error.message 
+        });
     }
 }
