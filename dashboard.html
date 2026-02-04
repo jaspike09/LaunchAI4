@@ -16,6 +16,8 @@
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
         .loading-dots::after { content: '...'; animation: blink 1.5s infinite; }
         @keyframes blink { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+        .bounce-in { animation: fadeInUp 0.3s ease-out; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="bg-slate-950 text-white font-sans flex h-screen overflow-hidden">
@@ -50,10 +52,6 @@
         </nav>
 
         <div class="p-6 border-t border-white/5 space-y-4">
-            <div class="flex items-center space-x-3">
-                <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center font-bold text-xs shadow-lg shadow-blue-500/20">F</div>
-                <div class="text-sm font-medium">Founder Tier</div>
-            </div>
             <button onclick="logout()" class="w-full py-2 border border-slate-700 rounded-lg text-[10px] text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition uppercase font-bold tracking-tighter">
                 Terminate Session
             </button>
@@ -64,8 +62,8 @@
         <header class="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-slate-950/50 backdrop-blur-sm">
             <h2 id="sectionTitle" class="text-lg font-semibold text-slate-200">Mission Control</h2>
             <div class="flex items-center gap-4">
-                <button onclick="clearCurrentHistory()" class="text-[10px] text-slate-500 hover:text-red-400 uppercase font-bold tracking-widest transition">Clear Briefing</button>
-                <span id="currentPhaseBadge" class="text-[10px] bg-blue-500/10 text-blue-400 px-3 py-1 rounded-full border border-blue-500/20 font-bold uppercase tracking-wider">Phase 1: Validation</span>
+                <button id="clearBtn" onclick="clearCurrentHistory()" class="hidden text-[10px] text-slate-500 hover:text-red-400 uppercase font-bold tracking-widest transition">Clear Briefing</button>
+                <span id="currentPhaseBadge" class="text-[10px] bg-blue-500/10 text-blue-400 px-3 py-1 rounded-full border border-blue-500/20 font-bold uppercase tracking-wider">Loading...</span>
             </div>
         </header>
 
@@ -75,19 +73,19 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="glass-panel p-6 rounded-2xl border-l-4 border-blue-500">
                         <p class="text-slate-400 text-xs font-bold uppercase mb-1">Status</p>
-                        <h3 class="text-2xl font-bold" id="progressPctText">Day 1</h3>
+                        <h3 class="text-2xl font-bold" id="progressPctText">---</h3>
                     </div>
                     <div class="glass-panel p-6 rounded-2xl border-l-4 border-green-500">
                         <p class="text-slate-400 text-xs font-bold uppercase mb-1">Active Week</p>
-                        <h3 class="text-2xl font-bold" id="currentWeekText">Week 1</h3>
+                        <h3 class="text-2xl font-bold" id="currentWeekText">---</h3>
                     </div>
                 </div>
 
                 <div class="glass-panel p-8 rounded-3xl relative overflow-hidden">
                     <div class="relative z-10">
                         <h4 class="text-2xl font-bold mb-2">Welcome, <span id="userNameDisplay" class="text-blue-400">Founder</span></h4>
-                        <p class="text-slate-400 mb-6 max-w-xl">Strategy engaged for: <span class="text-white italic font-medium" id="ideaDisplay">Loading vision...</span></p>
-                        <button onclick="showSection('roadmap')" class="bg-blue-600 px-8 py-3 rounded-xl font-bold hover:bg-blue-500 transition shadow-lg shadow-blue-600/20">Execute Next Step</button>
+                        <p class="text-slate-400 mb-6 max-w-xl">Strategy engaged for: <span class="text-white italic font-medium" id="ideaDisplay">Connecting to database...</span></p>
+                        <button onclick="showSection('roadmap')" class="bg-blue-600 px-8 py-3 rounded-xl font-bold hover:bg-blue-500 transition shadow-lg shadow-blue-600/20">View Roadmap</button>
                     </div>
                     <i class="fa-solid fa-rocket absolute -bottom-4 -right-4 text-9xl text-white/5 -rotate-12"></i>
                 </div>
@@ -118,7 +116,7 @@
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let currentAgent = "MentorAI";
-        let userProfile = null;
+        let userProfile = null; // THIS IS THE KEY
 
         const TASK_PROTOCOL = [
             { week: 1, title: "Market Validation", desc: "Identify ICP and conduct 5 problem interviews.", days: "Day 1-7" },
@@ -127,20 +125,38 @@
             { week: 4, title: "Scaling & Closing", desc: "Onboard 5 paying users and refine the pitch.", days: "Day 22-30" }
         ];
 
+        // --- 1. INITIALIZATION (The Fix for 406/Null) ---
         async function init() {
-            const { data: { session } } = await _supabase.auth.getSession();
-            if (!session) { window.location.href = 'auth.html'; return; }
+            try {
+                const { data: { session } } = await _supabase.auth.getSession();
+                if (!session) { 
+                    window.location.href = 'auth.html'; 
+                    return; 
+                }
 
-            const user = session.user;
-            document.getElementById('userNameDisplay').innerText = user.email.split('@')[0];
+                const user = session.user;
+                document.getElementById('userNameDisplay').innerText = user.email.split('@')[0];
 
-            const { data: profile } = await _supabase.from('profiles').select('*').eq('id', user.id).single();
-            userProfile = profile;
+                // Fetch Profile with a fallback to avoid the 406 crash
+                const { data: profile, error } = await _supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', user.id)
+                    .maybeSingle();
 
-            document.getElementById('ideaDisplay').innerText = profile?.business_idea || localStorage.getItem('userBusinessIdea') || "Stealth Project";
-            
-            updateJourney(profile?.created_at);
-            renderRoadmap();
+                if (error) console.warn("Profile table error (check RLS):", error);
+
+                // Set userProfile even if the table fetch fails
+                userProfile = profile || { id: user.id, business_idea: "Stealth Project", created_at: new Date() };
+
+                document.getElementById('ideaDisplay').innerText = userProfile.business_idea || "Stealth Project";
+                
+                updateJourney(userProfile.created_at);
+                renderRoadmap();
+
+            } catch (err) {
+                console.error("Critical Init Error:", err);
+            }
         }
 
         function updateJourney(signupDate) {
@@ -167,22 +183,22 @@
         }
 
         function showSection(id) {
-            ['overview', 'roadmap', 'chatArea'].forEach(s => {
-                document.getElementById(s).classList.add('hidden');
-            });
+            ['overview', 'roadmap', 'chatArea'].forEach(s => document.getElementById(s).classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
             document.getElementById('sectionTitle').innerText = (id === 'chatArea') ? currentAgent : id.charAt(0).toUpperCase() + id.slice(1);
+            document.getElementById('clearBtn').classList.toggle('hidden', id !== 'chatArea');
         }
 
-        // --- CHAT PERSISTENCE LOGIC ---
+        // --- 2. CHAT LOGIC (With Safety Guards) ---
 
         async function openChat(agent) {
+            if (!userProfile) return; // Prevent "null" error
             currentAgent = agent;
             showSection('chatArea');
             const box = document.getElementById('chatBox');
-            box.innerHTML = `<div class="text-center py-10 text-xs text-slate-500 italic animate-pulse">Establishing encrypted link to ${agent}...</div>`;
+            box.innerHTML = `<div class="text-center py-10 text-xs text-slate-500 italic animate-pulse">Syncing with ${agent}...</div>`;
 
-            const { data: history } = await _supabase
+            const { data: history, error } = await _supabase
                 .from('chat_history')
                 .select('*')
                 .eq('user_id', userProfile.id)
@@ -193,31 +209,28 @@
             if (history && history.length > 0) {
                 history.forEach(item => appendMessageToUI(item.sender === 'user' ? 'user' : 'ai', item.message, item.agent_name));
             } else {
-                box.innerHTML = `<div class="text-center py-20 opacity-20 italic text-sm">Archives empty. Awaiting your first command.</div>`;
+                box.innerHTML = `<div class="text-center py-20 opacity-20 italic text-sm">No previous transcripts. Secure line open.</div>`;
             }
             box.scrollTop = box.scrollHeight;
         }
 
         async function sendMessage() {
+            if (!userProfile) return;
             const input = document.getElementById('chatInput');
             const msg = input.value.trim();
             if (!msg) return;
 
             const box = document.getElementById('chatBox');
-            if (box.innerText.includes("Archives empty")) box.innerHTML = '';
+            if (box.innerText.includes("No previous transcripts")) box.innerHTML = '';
 
-            // 1. UI: Add User Message
             appendMessageToUI('user', msg);
             input.value = '';
             
-            // 2. DB: Save User Message
-            await _supabase.from('chat_history').insert([
-                { user_id: userProfile.id, agent_name: currentAgent, message: msg, sender: 'user' }
-            ]);
+            // Save to DB
+            await _supabase.from('chat_history').insert([{ user_id: userProfile.id, agent_name: currentAgent, message: msg, sender: 'user' }]);
 
-            // 3. UI: Loading
             const loadId = 'load-' + Date.now();
-            box.innerHTML += `<div class="flex justify-start" id="${loadId}"><div class="glass-panel p-4 rounded-2xl text-blue-400 text-sm italic font-bold">Board processing<span class="loading-dots"></span></div></div>`;
+            box.innerHTML += `<div class="flex justify-start" id="${loadId}"><div class="glass-panel p-4 rounded-2xl text-blue-400 text-sm italic font-bold">${currentAgent} analyzing<span class="loading-dots"></span></div></div>`;
             box.scrollTop = box.scrollHeight;
 
             try {
@@ -229,39 +242,28 @@
                 const data = await res.json();
                 document.getElementById(loadId).remove();
 
-                const finalReply = data.text || "Connection timeout. Please try again.";
-
-                // 4. UI: Add AI Message
+                const finalReply = data.text || "Board signal weak. Try again.";
                 appendMessageToUI('ai', finalReply, currentAgent);
 
-                // 5. DB: Save AI Message
-                await _supabase.from('chat_history').insert([
-                    { user_id: userProfile.id, agent_name: currentAgent, message: finalReply, sender: 'ai' }
-                ]);
-
+                await _supabase.from('chat_history').insert([{ user_id: userProfile.id, agent_name: currentAgent, message: finalReply, sender: 'ai' }]);
             } catch (err) {
-                document.getElementById(loadId).innerHTML = `<div class="text-red-500 text-xs italic">Uplink failed. Check logs.</div>`;
+                if(document.getElementById(loadId)) document.getElementById(loadId).innerHTML = `<div class="text-red-500 text-xs italic">Uplink failed.</div>`;
             }
         }
 
         function appendMessageToUI(type, text, agentName = "") {
             const box = document.getElementById('chatBox');
-            if (type === 'user') {
-                box.innerHTML += `
-                    <div class="flex justify-end">
-                        <div class="bg-blue-600/20 border border-blue-500/30 p-4 rounded-2xl rounded-tr-none max-w-[80%]">
-                            <p class="text-sm">${text}</p>
-                        </div>
-                    </div>`;
-            } else {
-                box.innerHTML += `
-                    <div class="flex justify-start">
-                        <div class="glass-panel p-4 rounded-2xl rounded-tl-none border border-white/10 max-w-[80%] shadow-xl">
-                            <p class="text-xs font-bold text-blue-400 mb-2 uppercase tracking-tighter">${agentName}</p>
-                            <p class="text-sm text-slate-200 leading-relaxed">${text}</p>
-                        </div>
-                    </div>`;
-            }
+            const wrapper = document.createElement('div');
+            wrapper.className = type === 'user' ? "flex justify-end bounce-in" : "flex justify-start bounce-in";
+            
+            wrapper.innerHTML = type === 'user' ? 
+                `<div class="bg-blue-600/20 border border-blue-500/30 p-4 rounded-2xl rounded-tr-none max-w-[80%] text-sm">${text}</div>` :
+                `<div class="glass-panel p-4 rounded-2xl rounded-tl-none border border-white/10 max-w-[80%] shadow-xl">
+                    <p class="text-xs font-bold text-blue-400 mb-2 uppercase tracking-tighter">${agentName}</p>
+                    <p class="text-sm text-slate-200 leading-relaxed">${text}</p>
+                </div>`;
+            
+            box.appendChild(wrapper);
             box.scrollTop = box.scrollHeight;
         }
 
