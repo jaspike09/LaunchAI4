@@ -22,7 +22,7 @@ export default async function handler(req) {
 
     const result = await streamText({
       // 2026 Production Model
-      model: google('gemini-3-flash'),
+    model: google('gemini-3-flash-preview'),
       system: `
         You are currently acting as ${agent}: ${boardDefinitions[agent] || 'Expert Advisor'}.
         
