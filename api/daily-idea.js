@@ -2,21 +2,33 @@ import { google } from '@ai-sdk/google';
 import { generateText } from 'ai';
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY // Use Service Key for backend write access
-);
-
 export default async function handler(req) {
-  // 1. Generate a 2026-specific business idea
+  // 1. VALIDATION GUARD: Check for keys before doing anything
+  const SUPABASE_URL = process.env.SUPABASE_URL;
+  const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!SUPABASE_URL || !SUPABASE_KEY) {
+    return new Response(
+      JSON.stringify({ 
+        error: "Server Configuration Missing: Ensure SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set in Vercel/Environment variables." 
+      }), 
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
+  // 2. INITIALIZE CLIENT INSIDE HANDLER
+  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
   try {
+    // 3. GENERATE 2026 BUSINESS IDEA
     const { text } = await generateText({
-      model: google('gemini-3-flash'),
-      system: "You are the IdeaValidatorAI. Your goal is to find one high-profit, zero-down business opportunity for February 2026.",
-      prompt: "Generate a business idea that is expected to generate money today. Include: 1. The Idea, 2. The 2026 Market Why, and 3. A 'Get Started' link guide. Format as a clean summary.",
+      model: google('gemini-3-flash'), // Optimized for 2026 performance
+      system: `You are the IdeaValidatorAI. You specialize in identifying 2026 market gaps. 
+               Focus on high-profit, zero-down-payment micro-SaaS or service businesses.`,
+      prompt: "Generate one actionable business idea for today. Break it down into: 1. The Concept, 2. The 2026 Revenue Why, and 3. Your first 3 steps to start.",
     });
 
-    // 2. Save to Supabase (so your dashboard UI updates)
+    // 4. PERSIST TO DATABASE
     const { error } = await supabase
       .from('daily_ideas')
       .insert([{ 
@@ -26,11 +38,21 @@ export default async function handler(req) {
 
     if (error) throw error;
 
-    // 3. Optional: Trigger Webhook to post to DailyIdeas4U Page
-    // await fetch('https://your-webhook-url.com', { method: 'POST', body: JSON.stringify({ idea: text }) });
+    // 5. SUCCESS RESPONSE
+    return new Response(JSON.stringify({ 
+      success: true, 
+      timestamp: new Date().toISOString(),
+      idea_preview: text.substring(0, 100) + "..." 
+    }), { 
+      status: 200, 
+      headers: { 'Content-Type': 'application/json' } 
+    });
 
-    return new Response(JSON.stringify({ success: true, idea: text }), { status: 200 });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    console.error("Board Error:", error.message);
+    return new Response(JSON.stringify({ error: "Executive Board Offline: " + error.message }), { 
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 }
