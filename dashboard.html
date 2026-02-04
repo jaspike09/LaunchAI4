@@ -22,11 +22,12 @@
             Launch<span class="text-blue-500">AI</span>
         </div>
         
-        <nav class="flex-1 mt-6 space-y-1">
+        <nav class="flex-1 mt-6 space-y-1 overflow-y-auto">
             <a href="#" onclick="showSection('overview')" class="sidebar-link active-link flex items-center px-6 py-4 transition">
                 <i class="fa-solid fa-chart-line mr-3"></i> Mission Control
             </a>
             <div class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest mt-4">The Board</div>
+            
             <a href="#" onclick="openChat('MentorAI')" class="sidebar-link flex items-center px-6 py-4 transition">
                 <i class="fa-solid fa-user-tie text-blue-400 mr-3"></i> MentorAI
             </a>
@@ -36,7 +37,7 @@
         </nav>
 
         <div class="p-6 border-t border-white/5">
-            <button onclick="logout()" class="w-full py-2 border border-slate-700 rounded-lg text-[10px] text-slate-400 uppercase font-bold tracking-tighter">
+            <button onclick="logout()" class="w-full py-2 border border-slate-700 rounded-lg text-[10px] text-slate-400 uppercase font-bold tracking-tighter hover:bg-red-500/10 transition">
                 Terminate Session
             </button>
         </div>
@@ -45,26 +46,29 @@
     <main class="flex-1 flex flex-col bg-slate-900">
         <header class="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-slate-950/50">
             <h2 id="sectionTitle" class="text-lg font-semibold">Mission Control</h2>
-            <div class="flex items-center gap-3">
-                <span id="userNameDisplay" class="text-xs font-bold text-slate-400">Founder</span>
-                <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold">F</div>
+            <div class="flex items-center gap-4">
+                <div class="flex flex-col items-end">
+                    <span id="userNameDisplay" class="text-xs font-bold text-blue-400 tracking-tight">Founder</span>
+                </div>
+                <div class="w-8 h-8 rounded-full bg-slate-800 border border-white/10 flex items-center justify-center font-bold text-xs">F</div>
             </div>
         </header>
 
         <div class="flex-1 overflow-y-auto p-8">
             <div id="overview" class="space-y-6">
-                <div class="glass-panel p-8 rounded-3xl border border-blue-500/20">
-                    <h3 class="text-slate-500 text-xs font-bold uppercase mb-2">Current Venture</h3>
-                    <h4 id="ideaDisplay" class="text-2xl font-bold mb-4 italic">"Stealth Project"</h4>
-                    <p class="text-slate-400 text-sm">Select a board member to start a briefing.</p>
+                <div class="glass-panel p-8 rounded-3xl border border-blue-500/10">
+                    <h4 class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-2">Venture Analysis</h4>
+                    <h2 id="ideaDisplay" class="text-2xl font-bold mb-4 italic text-white">"Analyzing your idea..."</h2>
+                    <p class="text-slate-400 text-sm max-w-xl">Uplink established. Select a board member from the left to begin strategizing.</p>
                 </div>
             </div>
 
-            <div id="chatArea" class="hidden h-full flex flex-col">
+            <div id="chatArea" class="hidden flex flex-col h-full max-h-[calc(100vh-160px)]">
                 <div id="chatBox" class="flex-1 glass-panel rounded-2xl p-6 mb-4 overflow-y-auto space-y-4 border border-white/5">
-                    </div>
-                <div class="flex gap-2 pb-8">
-                    <input type="text" id="chatInput" placeholder="Command..." class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-blue-500 transition-all">
+                    <div class="text-slate-500 text-center py-20 text-xs italic">Encrypted session ready.</div>
+                </div>
+                <div class="flex gap-2 pb-6">
+                    <input type="text" id="chatInput" placeholder="Send message..." class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-blue-500 transition-all">
                     <button onclick="sendMessage()" class="bg-blue-600 px-6 rounded-xl font-bold hover:bg-blue-500 active:scale-95 transition-all">
                         <i class="fa-solid fa-paper-plane"></i>
                     </button>
@@ -74,6 +78,7 @@
     </main>
 
     <script>
+        // 1. DATABASE CONFIG
         const SUPABASE_URL = 'https://yvgzyymjymrgjhhthgtj.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2Z3p5eW1qeW1yZ2poaHRoZ3RqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5OTc1MzIsImV4cCI6MjA4NTU3MzUzMn0.814FVde267XILaw-VA76Yuk6Y6BVQpCr_5fAF2KtBFw'; 
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -81,36 +86,44 @@
         let currentAgent = "MentorAI";
         let userProfile = null;
 
+        // 2. ROBUST INITIALIZATION
         async function init() {
             try {
-                const { data: { session } } = await _supabase.auth.getSession();
-                if (!session) { window.location.href = 'auth.html'; return; }
+                const { data: { session }, error: sessionError } = await _supabase.auth.getSession();
+                
+                if (sessionError || !session) {
+                    window.location.href = 'auth.html';
+                    return; 
+                }
 
-                const user = session.user;
-                const nameEl = document.getElementById('userNameDisplay');
-                if (nameEl) nameEl.innerText = user.email.split('@')[0];
+                // Safe Element Update
+                const nameDisplay = document.getElementById('userNameDisplay');
+                if (nameDisplay) nameDisplay.innerText = session.user.email.split('@')[0];
 
+                // Attempt to load profile
                 const { data: profile } = await _supabase
                     .from('profiles')
                     .select('*')
-                    .eq('id', user.id)
+                    .eq('id', session.user.id)
                     .maybeSingle();
 
+                // Fallback to local storage if profile doesn't exist yet
                 userProfile = profile || { 
-                    id: user.id, 
-                    business_idea: localStorage.getItem('userBusinessIdea') || "Stealth Project" 
+                    id: session.user.id, 
+                    business_idea: localStorage.getItem('userBusinessIdea') || "Stealth Venture" 
                 };
 
-                const ideaEl = document.getElementById('ideaDisplay');
-                if (ideaEl) ideaEl.innerText = `"${userProfile.business_idea}"`;
+                const ideaDisplay = document.getElementById('ideaDisplay');
+                if (ideaDisplay) ideaDisplay.innerText = `"${userProfile.business_idea}"`;
 
             } catch (err) {
-                console.error("Critical Init Error:", err);
+                console.error("Init Error:", err);
             }
         }
 
+        // 3. NAVIGATION LOGIC
         function showSection(id) {
-            // Hide all
+            // Hide everything
             document.getElementById('overview').classList.add('hidden');
             document.getElementById('chatArea').classList.add('hidden');
             
@@ -118,32 +131,39 @@
             const target = document.getElementById(id);
             if (target) target.classList.remove('hidden');
 
-            // Update UI
-            document.getElementById('sectionTitle').innerText = (id === 'chatArea') ? currentAgent : "Mission Control";
+            // Reset links
+            document.querySelectorAll('.sidebar-link').forEach(link => link.classList.remove('active-link'));
             
-            // Reset Sidebar Links
-            document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active-link'));
-            event.currentTarget.classList.add('active-link');
+            // Update title
+            document.getElementById('sectionTitle').innerText = (id === 'chatArea') ? currentAgent : "Mission Control";
         }
 
         function openChat(agent) {
             currentAgent = agent;
             showSection('chatArea');
+            // If starting fresh, show a tiny intro
             const chatBox = document.getElementById('chatBox');
-            if (chatBox.innerHTML.trim() === "") {
-                chatBox.innerHTML = `<div class="text-blue-400 text-xs italic opacity-50">Uplink established with ${agent}...</div>`;
+            if (chatBox.innerHTML.includes("Encrypted session ready")) {
+                chatBox.innerHTML = `<div class="text-blue-400 text-[10px] font-bold uppercase tracking-widest border-b border-white/5 pb-2 mb-4">Uplink: ${agent}</div>`;
             }
         }
 
+        // 4. CHAT LOGIC
         async function sendMessage() {
             const input = document.getElementById('chatInput');
             const text = input.value.trim();
             if (!text || !userProfile) return;
 
             const chatBox = document.getElementById('chatBox');
-            chatBox.innerHTML += `<div class="flex justify-end"><div class="bg-blue-600/20 p-4 rounded-2xl border border-blue-500/30 max-w-[80%] text-sm">${text}</div></div>`;
+            
+            // Render User Bubble
+            chatBox.innerHTML += `<div class="flex justify-end"><div class="bg-blue-600/20 p-4 rounded-2xl border border-blue-500/30 max-w-[85%] text-sm">${text}</div></div>`;
             input.value = "";
             chatBox.scrollTop = chatBox.scrollHeight;
+
+            // Loading indicator
+            const loadId = 'load-' + Date.now();
+            chatBox.innerHTML += `<div id="${loadId}" class="text-blue-400 text-[10px] animate-pulse italic">The Board is deliberating...</div>`;
 
             try {
                 const response = await fetch('/api/architect', {
@@ -156,9 +176,15 @@
                     })
                 });
                 const data = await response.json();
-                chatBox.innerHTML += `<div class="flex justify-start"><div class="glass-panel p-4 rounded-2xl border border-white/10 max-w-[80%] text-sm"><b class="text-blue-400 block mb-1 text-[10px] uppercase">${currentAgent}</b>${data.text}</div></div>`;
+                
+                document.getElementById(loadId).remove();
+                const aiText = data.text || "Connection weak. Re-send command.";
+
+                // Render AI Bubble
+                chatBox.innerHTML += `<div class="flex justify-start"><div class="glass-panel p-4 rounded-2xl border border-white/10 max-w-[85%] text-sm"><b class="text-blue-400 block mb-1 text-[10px] uppercase">${currentAgent}</b>${aiText}</div></div>`;
+
             } catch (e) {
-                chatBox.innerHTML += `<div class="text-red-500 text-xs">Uplink interrupted.</div>`;
+                if (document.getElementById(loadId)) document.getElementById(loadId).innerText = "Error: Uplink lost.";
             }
             chatBox.scrollTop = chatBox.scrollHeight;
         }
@@ -168,7 +194,7 @@
             window.location.href = 'index.html';
         }
 
-        // Run
+        // Initialize
         init();
     </script>
 </body>
