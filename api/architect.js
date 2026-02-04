@@ -4,30 +4,30 @@ import { streamText } from 'ai';
 export const config = { runtime: 'edge' };
 
 export default async function handler(req) {
+  if (req.method !== 'POST') return new Response('Method Not Allowed', { status: 405 });
+
   try {
     const body = await req.json();
     
-    // 1. EXTRACT DATA SAFELY
-    // If frontend sends 'message' (singular), we wrap it in an array
-    // If it sends 'messages' (plural), we use that
-    const rawMessages = body.messages || (body.message ? [{ role: 'user', content: body.message }] : null);
+    // Support both 'messages' (array) or 'message' (string) from frontend
+    const messages = body.messages || (body.message ? [{ role: 'user', content: body.message }] : null);
 
-    // 2. VALIDATION
-    if (!rawMessages) {
-      return new Response(JSON.stringify({ 
-        error: "Invalid input: 'messages' array or 'message' string is required." 
-      }), { status: 400 });
+    if (!messages) {
+      return new Response(JSON.stringify({ error: "No prompt provided" }), { status: 400 });
     }
 
-    // 3. CALL AI
     const result = await streamText({
-      model: google('gemini-1.5-flash'),
-      messages: rawMessages,
+      // FIXED: gemini-1.5-flash is retired. Using gemini-2.0-flash.
+      model: google('gemini-2.0-flash'), 
+      messages: messages,
     });
 
     return result.toTextStreamResponse();
   } catch (error) {
-    console.error('Architect API Error:', error);
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    console.error('Gemini API Error:', error);
+    return new Response(JSON.stringify({ error: error.message }), { 
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 }
