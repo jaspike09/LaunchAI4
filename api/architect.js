@@ -10,47 +10,46 @@ export default async function handler(req) {
     const { messages, agent, idea, focusHours, currentDay } = await req.json();
 
     const boardDefinitions = {
-      MentorAI: "Venture Strategist. Focus: Scalability and 2026 Market Dominance.",
-      IdeaValidatorAI: "Skeptical Analyst. Focus: Identifying business model flaws.",
-      MarketingAI: "Growth Hacker. Focus: Virality and 2026 attention economy.",
-      LawyerAI: "Compliance Expert. Focus: Digital regulations and protection.",
-      AccountantAI: "Profit Specialist. Focus: Unit economics and 'Chaching' revenue.",
-      SecretaryAI: "Accountability Officer. Focus: Schedule and 4-hour daily execution.",
-      CoachAI: "Performance Psychologist. Focus: Grit and founder burnout prevention."
+      MentorAI: "Senior Venture Partner & DBA. Focus: Scalability, Porter's Five Forces, and exit strategy.",
+      IdeaValidatorAI: "Market Research Lead & DBA. Focus: Empirical validation, TAM/SAM/SOM, and failure point analysis.",
+      MarketingAI: "Chief Marketing Officer & DBA. Focus: Behavioral economics, virality loops, and attribution modeling.",
+      LawyerAI: "General Counsel & JD/DBA. Focus: Intellectual property, 2026 digital compliance, and risk liability.",
+      AccountantAI: "CFO & DBA. Focus: Working capital, burn rate optimization, and EBITDA forecasting.",
+      SecretaryAI: "Chief of Staff & DBA. Focus: Operational efficiency, time-blocking, and KPI tracking.",
+      CoachAI: "Executive Psychologist & DBA. Focus: Peak performance, grit metrics, and cognitive load management."
     };
 
     const result = await streamText({
-      // FIXED MODEL STRING FOR FEB 2026
       model: google('gemini-3-flash-preview'), 
       
-      // 2026 SPECIFIC: Enabling 'Thinking' for complex task orchestration
+      // 2026 HIGH-LEVEL REASONING CONFIG
       providerOptions: {
         google: {
-          thinkingLevel: 'medium', // Options: minimal, low, medium, high
+          thinkingLevel: 'high', // Maximum depth for doctoral-level reasoning
         },
       },
 
       system: `
-        You are ${agent}: ${boardDefinitions[agent] || 'Executive Advisor'}.
+        ROLE: You are ${agent}: ${boardDefinitions[agent]}. 
+        PHILOSOPHY: You hold a Doctorate in Business Administration. Your advice is rooted in academic theory and 2026 market data.
         
         CONTEXT:
-        - Project: "${idea}"
-        - Timeline: Day ${currentDay} of 30.
-        - Daily Capacity: ${focusHours} hours.
+        - Enterprise Idea: "${idea}"
+        - Launch Cycle: Day ${currentDay} of 30.
+        - Operational Window: ${focusHours} hours/day.
         
-        MISSION:
-        1. Fully embody the ${agent} persona.
-        2. Give the founder a specific task for their ${focusHours} hour block TODAY.
-        3. End every message with: "✅ CHACHING CHECKLIST: [Specific Action Item]"
+        STRATEGIC DIRECTIVES:
+        1. Use professional, high-level business terminology (e.g., 'Economic Moats', 'Customer Acquisition Cost').
+        2. Prioritize high-impact, lean methodology.
+        3. Do not be "chatty." Be precise, authoritative, and strategic.
+        4. TASK: Assign exactly one high-priority task for today's ${focusHours}-hour block.
+        5. OUTPUT: Every response MUST end with: "✅ DOCTORATE DIRECTIVE: [Actionable Task]"
       `,
       messages,
     });
 
     return result.toTextStreamResponse();
   } catch (error) {
-    console.error('Board Meeting Interrupted:', error);
-    return new Response(JSON.stringify({ 
-      error: "The Board is currently re-calibrating. Error: " + error.message 
-    }), { status: 500 });
+    return new Response(JSON.stringify({ error: "Executive Session Interrupted." }), { status: 500 });
   }
 }
