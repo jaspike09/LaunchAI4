@@ -71,96 +71,99 @@
         </div>
     </main>
 
+    // ... existing HTML head and styles ...
+
     <script>
         const SUPABASE_URL = 'https://yvgzyymjymrgjhhthgtj.supabase.co';
-        const SUPABASE_KEY = 'YOUR_KEY_HERE'; // Replace with your actual key
+        const SUPABASE_KEY = 'YOUR_KEY_HERE'; // Keep your existing key here
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let currentAgent = "MentorAI";
         let userProfile = null;
 
         async function init() {
+            // Check session
             const { data: { session } } = await _supabase.auth.getSession();
-            if (!session) return window.location.href = 'auth.html';
+            if (!session) {
+                window.location.href = 'auth.html';
+                return; 
+            }
 
             const user = session.user;
             document.getElementById('userNameDisplay').innerText = user.email.split('@')[0];
 
+            // Load Profile from DB
             const { data: profile } = await _supabase.from('profiles').select('*').eq('id', user.id).maybeSingle();
-            userProfile = profile || { id: user.id, business_idea: "Stealth Startup" };
-            document.getElementById('ideaDisplay').innerText = userProfile.business_idea;
-        }
-
-        async function openChat(agent) {
-            if (!userProfile) return;
-            currentAgent = agent;
-            showSection('chatArea');
-            const box = document.getElementById('chatBox');
-            box.innerHTML = `<div class="text-center py-10 text-xs text-slate-500 italic">Establishing encrypted link with ${agent}...</div>`;
-
-            const { data: history } = await _supabase.from('chat_history').select('*').eq('user_id', userProfile.id).eq('agent_name', agent).order('created_at', { ascending: true });
             
-            box.innerHTML = '';
-            if (history?.length) {
-                history.forEach(item => appendMsg(item.sender === 'user' ? 'user' : 'ai', item.message, item.agent_name));
-            } else {
-                box.innerHTML = `<div class="text-center py-20 opacity-20 italic text-sm">Secure line open. Awaiting briefing.</div>`;
+            // Fallback for God Mode or first-time users
+            userProfile = profile || { 
+                id: user.id, 
+                business_idea: localStorage.getItem('userBusinessIdea') || "Stealth Startup" 
+            };
+
+            document.getElementById('ideaDisplay').innerText = userProfile.business_idea;
+
+            // UI Adjustments for Tier
+            if (localStorage.getItem('launchAI_GodMode') === 'true') {
+                const badge = document.getElementById('tierBadge');
+                badge.innerText = "A";
+                badge.className = "w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center font-bold text-xs";
+                document.getElementById('tierName').innerText = "Architect Tier";
             }
-            box.scrollTop = box.scrollHeight;
         }
 
         async function sendMessage() {
             const input = document.getElementById('chatInput');
-            const msg = input.value.trim();
-            if (!msg || !userProfile) return;
+            const text = input.value.trim();
+            if (!text || !userProfile) return;
 
-            appendMsg('user', msg);
-            input.value = '';
-            await _supabase.from('chat_history').insert([{ user_id: userProfile.id, agent_name: currentAgent, message: msg, sender: 'user' }]);
+            const chatBox = document.getElementById('chatBox');
+            
+            // 1. Render User Message
+            chatBox.innerHTML += `<div class="flex justify-end mb-4"><div class="bg-blue-600/20 p-4 rounded-2xl border border-blue-500/30 max-w-[80%]"><p class="text-sm">${text}</p></div></div>`;
+            input.value = "";
+            
+            // 2. Save User Message to Supabase
+            await _supabase.from('chat_history').insert([{ 
+                user_id: userProfile.id, 
+                agent_name: currentAgent, 
+                message: text, 
+                sender: 'user' 
+            }]);
 
+            // 3. Loading State
             const loadId = 'load-' + Date.now();
-            document.getElementById('chatBox').innerHTML += `<div id="${loadId}" class="flex justify-start"><div class="glass-panel p-4 rounded-2xl text-blue-400 text-sm italic font-bold">Board analyzing<span class="loading-dots"></span></div></div>`;
+            chatBox.innerHTML += `<div id="${loadId}" class="text-blue-400 text-xs italic animate-pulse mb-4">${currentAgent} is thinking...</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
 
             try {
-                const res = await fetch('/api/architect', {
+                const response = await fetch('/api/architect', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: msg, agent: currentAgent, idea: userProfile.business_idea })
+                    body: JSON.stringify({ message: text, agent: currentAgent, idea: userProfile.business_idea })
                 });
-                const data = await res.json();
+                const data = await response.json();
+                
                 document.getElementById(loadId).remove();
 
-                const finalReply = data.text || "Connection unstable.";
-                appendMsg('ai', finalReply, currentAgent);
-                await _supabase.from('chat_history').insert([{ user_id: userProfile.id, agent_name: currentAgent, message: finalReply, sender: 'ai' }]);
-            } catch (err) {
-                document.getElementById(loadId).innerHTML = `<div class="text-red-500 text-xs italic">Uplink failed.</div>`;
+                // 4. Render AI Response
+                const aiText = data.text || "Connection lost.";
+                chatBox.innerHTML += `<div class="flex justify-start mb-4"><div class="glass-panel p-4 rounded-2xl border border-white/10 max-w-[80%]"><p class="text-xs font-bold text-blue-400 mb-1">${currentAgent}</p><p class="text-sm">${aiText}</p></div></div>`;
+                
+                // 5. Save AI Response to Supabase
+                await _supabase.from('chat_history').insert([{ 
+                    user_id: userProfile.id, 
+                    agent_name: currentAgent, 
+                    message: aiText, 
+                    sender: 'ai' 
+                }]);
+            } catch (e) {
+                document.getElementById(loadId).innerText = "Error connecting to the Board.";
             }
+            chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        function appendMsg(type, text, agentName = "") {
-            const box = document.getElementById('chatBox');
-            const wrap = document.createElement('div');
-            wrap.className = `flex ${type === 'user' ? 'justify-end' : 'justify-start'} bounce-in`;
-            wrap.innerHTML = type === 'user' ? 
-                `<div class="bg-blue-600/20 border border-blue-500/30 p-4 rounded-2xl max-w-[80%] text-sm">${text}</div>` :
-                `<div class="glass-panel p-4 rounded-2xl border border-white/10 max-w-[80%] shadow-xl">
-                    <p class="text-[10px] font-bold text-blue-400 mb-1 uppercase tracking-tighter">${agentName}</p>
-                    <p class="text-sm text-slate-200 leading-relaxed">${text}</p>
-                </div>`;
-            box.appendChild(wrap);
-            box.scrollTop = box.scrollHeight;
-        }
-
-        function showSection(id) {
-            ['overview', 'chatArea'].forEach(s => document.getElementById(s).classList.add('hidden'));
-            document.getElementById(id).classList.remove('hidden');
-            document.getElementById('sectionTitle').innerText = (id === 'chatArea') ? currentAgent : "Mission Control";
-            document.getElementById('clearBtn').classList.toggle('hidden', id !== 'chatArea');
-        }
-
-        async function logout() { await _supabase.auth.signOut(); window.location.href = 'index.html'; }
-        document.getElementById('chatInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') sendMessage(); });
+        // ... existing helper functions (showSection, logout, etc) ...
         init();
     </script>
 </body>
