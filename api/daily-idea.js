@@ -3,56 +3,41 @@ import { generateText } from 'ai';
 import { createClient } from '@supabase/supabase-js';
 
 export default async function handler(req) {
-  // 1. VALIDATION GUARD: Check for keys before doing anything
-  const SUPABASE_URL = process.env.SUPABASE_URL;
-  const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  // 1. Safety Check: Ensure keys exist before trying to use them
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  if (!SUPABASE_URL || !SUPABASE_KEY) {
-    return new Response(
-      JSON.stringify({ 
-        error: "Server Configuration Missing: Ensure SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set in Vercel/Environment variables." 
-      }), 
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
+  if (!supabaseUrl || !supabaseKey) {
+    return new Response(JSON.stringify({ 
+      error: "System Configuration Missing: Check Vercel Environment Variables." 
+    }), { status: 500 });
   }
 
-  // 2. INITIALIZE CLIENT INSIDE HANDLER
-  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+  const supabase = createClient(supabaseUrl, supabaseKey);
 
   try {
-    // 3. GENERATE 2026 BUSINESS IDEA
+    // 2. Generate the Idea
     const { text } = await generateText({
-      model: google('gemini-3-flash'), // Optimized for 2026 performance
-      system: `You are the IdeaValidatorAI. You specialize in identifying 2026 market gaps. 
-               Focus on high-profit, zero-down-payment micro-SaaS or service businesses.`,
-      prompt: "Generate one actionable business idea for today. Break it down into: 1. The Concept, 2. The 2026 Revenue Why, and 3. Your first 3 steps to start.",
+      model: google('gemini-3-flash'),
+      system: "You are the IdeaValidatorAI. Identify a high-profit 2026 business opportunity.",
+      prompt: "Give me one business idea for today. Keep it punchy and actionable.",
     });
 
-    // 4. PERSIST TO DATABASE
-    const { error } = await supabase
+    // 3. Save to Database
+    const { data, error } = await supabase
       .from('daily_ideas')
-      .insert([{ 
-          content: text, 
-          created_at: new Date().toISOString() 
-      }]);
+      .insert([{ content: text }])
+      .select();
 
     if (error) throw error;
 
-    // 5. SUCCESS RESPONSE
-    return new Response(JSON.stringify({ 
-      success: true, 
-      timestamp: new Date().toISOString(),
-      idea_preview: text.substring(0, 100) + "..." 
-    }), { 
-      status: 200, 
-      headers: { 'Content-Type': 'application/json' } 
+    return new Response(JSON.stringify({ success: true, data }), { 
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
     });
 
   } catch (error) {
-    console.error("Board Error:", error.message);
-    return new Response(JSON.stringify({ error: "Executive Board Offline: " + error.message }), { 
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    console.error("Worker Error:", error.message);
+    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
   }
 }
