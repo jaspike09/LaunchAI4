@@ -16,7 +16,7 @@ export default async function handler(req) {
 
   try {
     const { text } = await generateText({
-      model: google('gemini-3-flash-preview'),
+      model: google('gemini-1.5-flash'),
       prompt: "Generate one 2026 business idea for the DailyIdeas4U platform.",
     });
 
