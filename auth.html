@@ -48,13 +48,14 @@
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; 
     
     // FIX: This options object prevents the "406 Not Acceptable" error
-    const supabaseOptions = {
-        global: {
-            headers: { 'Accept': 'application/json' }
-        }
-    };
+   const supabaseOptions = {
+    global: {
+        headers: { 'Accept': 'application/json' }
+    }
+};
 
-    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, supabaseOptions);
+// Ensure this options object is passed as the third argument
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, supabaseOptions);
 
     // --- 4. AUTH LOGIC ---
     authForm.addEventListener('submit', async (e) => {
