@@ -28,29 +28,20 @@
                 <i class="fa-solid fa-rocket mr-3 text-blue-500"></i> Mission Control
             </a>
 
-            <div class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Executive Board</div>
+            <div class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-opacity-50">Executive Board</div>
             
-            <a href="#" onclick="openChat('MentorAI')" class="sidebar-link flex items-center px-6 py-3 transition">
+            <button onclick="openChat('MentorAI')" class="w-full sidebar-link flex items-center px-6 py-3 transition text-left">
                 <i class="fa-solid fa-user-tie text-blue-400 mr-3 w-5"></i> MentorAI
-            </a>
-            <a href="#" onclick="openChat('IdeaValidatorAI')" class="sidebar-link flex items-center px-6 py-3 transition">
+            </button>
+            <button onclick="openChat('IdeaValidatorAI')" class="w-full sidebar-link flex items-center px-6 py-3 transition text-left">
                 <i class="fa-solid fa-microscope text-cyan-400 mr-3 w-5"></i> IdeaValidatorAI
-            </a>
-            <a href="#" onclick="openChat('MarketingAI')" class="sidebar-link flex items-center px-6 py-3 transition">
+            </button>
+            <button onclick="openChat('MarketingAI')" class="w-full sidebar-link flex items-center px-6 py-3 transition text-left">
                 <i class="fa-solid fa-bullhorn text-orange-400 mr-3 w-5"></i> MarketingAI
-            </a>
-            <a href="#" onclick="openChat('LawyerAI')" class="sidebar-link flex items-center px-6 py-3 transition">
+            </button>
+            <button onclick="openChat('LawyerAI')" class="w-full sidebar-link flex items-center px-6 py-3 transition text-left">
                 <i class="fa-solid fa-scale-balanced text-red-400 mr-3 w-5"></i> LawyerAI
-            </a>
-            <a href="#" onclick="openChat('AccountantAI')" class="sidebar-link flex items-center px-6 py-3 transition">
-                <i class="fa-solid fa-calculator text-emerald-400 mr-3 w-5"></i> AccountantAI
-            </a>
-            <a href="#" onclick="openChat('SecretaryAI')" class="sidebar-link flex items-center px-6 py-3 transition">
-                <i class="fa-solid fa-calendar-check text-purple-400 mr-3 w-5"></i> SecretaryAI
-            </a>
-            <a href="#" onclick="openChat('CoachAI')" class="sidebar-link flex items-center px-6 py-3 transition">
-                <i class="fa-solid fa-bolt text-yellow-400 mr-3 w-5"></i> CoachAI
-            </a>
+            </button>
         </nav>
 
         <div class="p-6 border-t border-white/5 bg-slate-900/50">
@@ -64,7 +55,7 @@
         <header class="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-slate-950/50">
             <div class="flex items-center gap-4">
                 <h2 id="sectionTitle" class="text-lg font-semibold">Mission Control</h2>
-                <span id="dayBadge" class="bg-blue-500/20 text-blue-400 text-[10px] px-2 py-1 rounded border border-blue-500/30 font-bold">DAY 1</span>
+                <span id="dayBadge" class="bg-blue-500/20 text-blue-400 text-[10px] px-2 py-1 rounded border border-blue-500/30 font-bold uppercase">DAY 1</span>
             </div>
             <div class="flex items-center gap-4">
                 <div class="text-right">
@@ -78,7 +69,6 @@
         <div class="flex-1 overflow-y-auto p-8">
             
             <div id="overview" class="space-y-6">
-                
                 <div class="glass-panel p-8 rounded-3xl border border-blue-500/20">
                     <div class="flex justify-between items-start mb-6">
                         <div>
@@ -93,11 +83,6 @@
                     <div class="w-full bg-white/5 rounded-full h-4 overflow-hidden border border-white/5">
                         <div id="progressBar" class="bg-gradient-to-r from-blue-600 via-cyan-400 to-emerald-500 h-full rounded-full transition-all duration-1000" style="width: 3.3%"></div>
                     </div>
-                    <div class="flex justify-between mt-3 text-[10px] text-slate-500 font-bold uppercase tracking-widest">
-                        <span>Day 1: Validation</span>
-                        <span>Day 15: MVP</span>
-                        <span>Day 30: Scale</span>
-                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -107,23 +92,18 @@
                             <input type="number" id="focusHours" value="4" onchange="updateProfile()" class="w-16 bg-blue-600/20 border border-blue-500/30 rounded-xl px-3 py-2 text-xl font-bold text-white outline-none">
                             <span class="text-sm text-slate-400 font-medium">Hours / Day Focus</span>
                         </div>
-                        <p class="text-[10px] text-slate-500 mt-4 italic"><i class="fa-solid fa-clock mr-1"></i> SecretaryAI will monitor your login frequency.</p>
                     </div>
 
-                    <div class="bg-gradient-to-br from-blue-600/20 to-purple-600/20 p-6 rounded-3xl border border-blue-500/30 relative overflow-hidden group">
-                        <div class="relative z-10">
-                            <h4 class="text-blue-400 text-[10px] font-bold uppercase tracking-widest mb-2">💡 DailyIdea4U (Feb 2026)</h4>
-                            <p id="dailyIdeaText" class="text-sm font-semibold text-white mb-3">Fetching today's market opportunity...</p>
-                            <a href="#" class="text-[10px] bg-blue-600 px-3 py-1.5 rounded-lg uppercase font-bold tracking-tighter hover:bg-blue-500 transition inline-block">Post to My Page</a>
-                        </div>
-                        <i class="fa-solid fa-money-bill-trend-up absolute -right-4 -bottom-4 text-7xl text-white/5 group-hover:scale-110 transition-transform"></i>
+                    <div class="bg-gradient-to-br from-blue-600/20 to-purple-600/20 p-6 rounded-3xl border border-blue-500/30">
+                        <h4 class="text-blue-400 text-[10px] font-bold uppercase tracking-widest mb-2">💡 DailyIdea4U</h4>
+                        <p id="dailyIdeaText" class="text-sm font-semibold text-white mb-3">Fetching today's market opportunity...</p>
                     </div>
                 </div>
             </div>
 
-            <div id="chatArea" class="hidden flex flex-col h-full">
+            <div id="chatArea" class="hidden flex flex-col h-full max-h-[calc(100vh-160px)]">
                 <div id="chatBox" class="flex-1 glass-panel rounded-2xl p-6 mb-4 overflow-y-auto space-y-4 border border-white/5">
-                    <div class="text-slate-500 text-center py-20 text-xs italic">Uplink secure. The Board is listening.</div>
+                    <div class="text-slate-500 text-center py-20 text-xs italic">Uplink secure. Board is active.</div>
                 </div>
                 <div class="flex gap-3 pb-4">
                     <input type="text" id="chatInput" placeholder="Message the Board..." class="flex-1 bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-blue-500 transition-all text-sm">
@@ -136,45 +116,33 @@
     </main>
 
     <script>
-        // --- 1. CONFIG & STATE ---
         const SUPABASE_URL = 'https://yvgzyymjymrgjhhthgtj.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2Z3p5eW1qeW1yZ2poaHRoZ3RqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5OTc1MzIsImV4cCI6MjA4NTU3MzUzMn0.814FVde267XILaw-VA76Yuk6Y6BVQpCr_5fAF2KtBFw'; 
-       const supabaseOptions = {
-    global: {
-        headers: { 'Accept': 'application/json' }
-    }
-};
 
-// Ensure this options object is passed as the third argument
-const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, supabaseOptions);
+        // Fixes 406 Error with proper headers
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+            global: { headers: { 'Accept': 'application/json' } }
+        });
 
-        let userProfile = {
-            id: null,
-            idea: "Stealth Venture",
-            focusHours: 4,
-            currentDay: 1
-        };
+        let userProfile = { id: null, idea: "Stealth Venture", focusHours: 4, currentDay: 1 };
         let currentAgent = "MentorAI";
 
-        // --- 2. INITIALIZATION ---
         async function init() {
             const { data: { session } } = await _supabase.auth.getSession();
             if (!session) { window.location.href = 'auth.html'; return; }
 
             document.getElementById('userNameDisplay').innerText = session.user.email.split('@')[0];
             
-            // Fetch Profile or create default
             const { data: profile } = await _supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle();
             
             if (profile) {
                 userProfile = {
                     id: session.user.id,
-                    idea: profile.business_idea || localStorage.getItem('userBusinessIdea'),
+                    idea: profile.business_idea || localStorage.getItem('userBusinessIdea') || "Stealth Venture",
                     focusHours: profile.focus_hours || 4,
                     currentDay: calculateDay(profile.created_at)
                 };
             }
-
             updateUI();
             fetchDailyIdea();
         }
@@ -182,7 +150,7 @@ const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, supabaseOpti
         function calculateDay(createdDate) {
             const start = new Date(createdDate);
             const diff = Math.floor((new Date() - start) / (1000 * 60 * 60 * 24)) + 1;
-            return Math.min(diff, 30);
+            return Math.min(Math.max(diff, 1), 30);
         }
 
         function updateUI() {
@@ -192,16 +160,11 @@ const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, supabaseOpti
             document.getElementById('focusHours').value = userProfile.focusHours;
         }
 
-        // --- 3. NAVIGATION & CHAT ---
         function showSection(id) {
-            document.getElementById('overview').classList.add('hidden');
-            document.getElementById('chatArea').classList.add('hidden');
-            document.getElementById(id).classList.remove('hidden');
-            
-            // Handle active link styles
+            document.getElementById('overview').classList.toggle('hidden', id !== 'overview');
+            document.getElementById('chatArea').classList.toggle('hidden', id !== 'chatArea');
             document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active-link'));
             if(id === 'overview') document.getElementById('link-overview').classList.add('active-link');
-            
             document.getElementById('sectionTitle').innerText = (id === 'chatArea') ? currentAgent : "Mission Control";
         }
 
@@ -210,6 +173,7 @@ const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, supabaseOpti
             showSection('chatArea');
             const chatBox = document.getElementById('chatBox');
             chatBox.innerHTML += `<div class="text-blue-400 text-[10px] font-bold uppercase tracking-widest border-b border-white/5 pb-2 mt-6 mb-4">Board Session: ${agent}</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
         }
 
         async function sendMessage() {
@@ -218,11 +182,11 @@ const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, supabaseOpti
             if (!text) return;
 
             const chatBox = document.getElementById('chatBox');
-            chatBox.innerHTML += `<div class="flex justify-end"><div class="bg-blue-600/20 p-4 rounded-2xl border border-blue-500/30 max-w-[85%] text-sm">${text}</div></div>`;
+            chatBox.innerHTML += `<div class="flex justify-end mb-4"><div class="bg-blue-600/20 p-4 rounded-2xl border border-blue-500/30 max-w-[85%] text-sm">${text}</div></div>`;
             input.value = "";
             
             const aiBubbleId = 'ai-' + Date.now();
-            chatBox.innerHTML += `<div class="flex justify-start"><div class="glass-panel p-4 rounded-2xl border border-white/10 max-w-[85%] text-sm">
+            chatBox.innerHTML += `<div class="flex justify-start mb-4"><div class="glass-panel p-4 rounded-2xl border border-white/10 max-w-[85%] text-sm">
                 <b class="text-blue-400 block mb-1 text-[10px] uppercase">${currentAgent}</b>
                 <span id="${aiBubbleId}" class="leading-relaxed">...</span>
             </div></div>`;
@@ -249,31 +213,33 @@ const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, supabaseOpti
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) break;
-                    textTarget.innerText += decoder.decode(value);
+                    
+                    const rawChunk = decoder.decode(value);
+                    // Standard stream cleaning for AI SDK v6
+                    const cleanChunk = rawChunk
+                        .split('\n')
+                        .filter(line => line.startsWith('0:'))
+                        .map(line => line.replace(/^0:"/, '').replace(/"$/, '').replace(/\\n/g, '\n'))
+                        .join('');
+                    
+                    textTarget.innerText += cleanChunk;
                     chatBox.scrollTop = chatBox.scrollHeight;
                 }
             } catch (e) {
-                document.getElementById(aiBubbleId).innerText = "Uplink Error. Check Board connection.";
+                document.getElementById(aiBubbleId).innerText = "Uplink Failure. Board connection lost.";
             }
         }
 
-        // --- 4. 2026 FEATURES ---
-       async function fetchDailyIdea() {
-    try {
-        const res = await fetch('/api/daily-idea');
-        const data = await res.json();
-        if (data.success) {
-            // Take the latest idea from the array
-            document.getElementById('dailyIdeaText').innerText = data.data[0].content;
-        }
-    } catch (e) {
-        document.getElementById('dailyIdeaText').innerText = "Board is still strategizing...";
-    }
-}
-
-        async function updateProfile() {
-            userProfile.focusHours = document.getElementById('focusHours').value;
-            // Push to Supabase if desired
+        async function fetchDailyIdea() {
+            try {
+                const res = await fetch('/api/daily-idea');
+                const data = await res.json();
+                if (data.success && data.data?.[0]) {
+                    document.getElementById('dailyIdeaText').innerText = data.data[0].content;
+                }
+            } catch (e) {
+                document.getElementById('dailyIdeaText').innerText = "Market data unavailable. Execute your mission.";
+            }
         }
 
         async function logout() {
