@@ -139,7 +139,14 @@
         // --- 1. CONFIG & STATE ---
         const SUPABASE_URL = 'https://yvgzyymjymrgjhhthgtj.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2Z3p5eW1qeW1yZ2poaHRoZ3RqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5OTc1MzIsImV4cCI6MjA4NTU3MzUzMn0.814FVde267XILaw-VA76Yuk6Y6BVQpCr_5fAF2KtBFw'; 
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+       const supabaseOptions = {
+    global: {
+        headers: { 'Accept': 'application/json' }
+    }
+};
+
+// Ensure this options object is passed as the third argument
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, supabaseOptions);
 
         let userProfile = {
             id: null,
