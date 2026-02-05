@@ -14,25 +14,30 @@ export default async function handler(req) {
     const body = await req.json();
     const { messages, agent, idea, focusHours, currentDay } = body;
     
-    // 1. ISOLATE THE MODEL: This bypasses the bundling syntax error
-    const modelInstance = google('gemini-1.5-flash');
+    // Explicitly define the model outside the object to avoid bundling syntax errors
+    const geminiModel = google('gemini-1.5-flash');
 
-    // 2. RUN THE STREAM
     const result = await streamText({
-      model: modelInstance,
+      model: geminiModel,
       system: `
         IDENTITY: You are ${agent || 'MentorAI'}, a Managing Partner & DBA. 
-        CONTEXT: Day ${currentDay || 1}/30 of a launch for "${idea || 'Stealth Venture'}".
-        PROTOCOL: ${ (currentDay || 1) <= 7 ? "COMMAND MODE: Assign a high-leverage task." : "STRATEGIC MODE: Advanced analysis." }
+        CONTEXT: Day ${currentDay || 1}/30 for "${idea || 'Stealth Venture'}".
+        
+        PHASE PROTOCOL:
+        ${(currentDay || 1) <= 7 
+          ? "COMMAND MODE: The user is in takeoff. Do not ask for input. Assign the highest-leverage task immediately." 
+          : "STRATEGIC MODE: Provide advanced analysis."
+        }
+        
         GOAL: Ensure a win in a ${focusHours || 4}-hour block.
-        TERMINATION: Always end with: "✅ DOCTORATE DIRECTIVE: [Task]"
+        TERMINATION: Always end with: "✅ DOCTORATE DIRECTIVE: [One specific task]"
       `,
       messages,
     });
 
     return result.toTextStreamResponse();
   } catch (error) {
-    console.error("Build/Runtime Error:", error);
+    console.error("Runtime Error:", error);
     return new Response(JSON.stringify({ error: error.message }), { 
       status: 500,
       headers: { 'Content-Type': 'application/json' }
