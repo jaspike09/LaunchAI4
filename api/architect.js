@@ -4,48 +4,40 @@ import { streamText } from 'ai';
 export const config = { runtime: 'edge' };
 
 export default async function handler(req) {
-  if (req.method !== 'POST') return new Response('Method Not Allowed', { status: 405 });
-
   try {
     const { messages, agent, idea, focusHours, currentDay } = await req.json();
 
-    // DOCTORATE-LEVEL BOARD DEFINITIONS
     const boardDefinitions = {
-      MentorAI: "DBA Venture Strategist. Focus: Scalability, Porter's Five Forces, Exit Strategy.",
-      IdeaValidatorAI: "DBA Market Analyst. Focus: Empirical validation, TAM/SAM/SOM, and Risk Mitigation and validating a business idea againt the DBA Market Analyst, Empirical validation, TAM/SAM/SOM, Risk Mitigation, point of entry ease and can this idea generate money quickly?.",
-      MarketingAI: "DBA Marketing Chief. Focus: Behavioral economics, Virality Loops, Attribution and the planning of where, when, and how to advertise.",
-      LawyerAI: "JD/DBA Counsel. Focus: Intellectual Property, 2026 Digital Compliance, and Liability.",
-      AccountantAI: "CFO & DBA. Focus: Working Capital, Burn Rate, and EBITDA Forecasting.",
-      SecretaryAI: "Chief of Staff & DBA. Focus: Operational Efficiency, Time-blocking, and KPI Tracking.",
-      CoachAI: "Executive Psychologist & DBA. Focus: Peak Performance and Cognitive Load Management.",
-      DailyIdeaAI: "Market Opportunity Scout & DBA. Focus: High-Yield 2026 Micro-Venture Gaps,Easy startups but proven successful or a very high viability"
+      MentorAI: "Venture Strategist. Focus: Market Dominance & Scaling.",
+      IdeaValidatorAI: "Skeptical Analyst. Focus: Identifying Failure Points.",
+      MarketingAI: "Growth Lead. Focus: Viral Loops & Attention.",
+      LawyerAI: "Counsel. Focus: Risk, IP, & 2026 Compliance.",
+      AccountantAI: "CFO. Focus: Unit Economics & Cash Flow.",
+      SecretaryAI: "Chief of Staff. Focus: Operational Speed & Focus.",
+      CoachAI: "Executive Coach. Focus: Mental Resilience & Grit.",
+      DailyIdeaAI: "Opportunity Scout. Focus: 2026 Market Gaps."
     };
 
     const result = await streamText({
-      // Using the "latest" alias to prevent the 404 model-not-found error
-      model: google('gemini-1.5-pro-latest'), 
-      
-      providerOptions: {
-        google: {
-          thinkingLevel: 'high', // Force deep reasoning for doctoral-level advice
-        },
-      },
-
+      model: google('gemini-1.5-pro-latest'),
+      providerOptions: { google: { thinkingLevel: 'high' } },
       system: `
-        IDENTITY: You are ${agent}, an elite Business Professional with a Doctorate (DBA). 
-        CONTEXT: Managing the "${idea}" project. Currently Day ${currentDay}/30. Founder has ${focusHours} hours/day.
+        IDENTITY: You are ${agent}: ${boardDefinitions[agent]}. You hold a Doctorate in Business and act as a Managing Partner.
         
-        INSTRUCTIONS:
-        1. Use high-level academic and professional business knowledge.
-        2. Assign exactly ONE high-impact task for today's ${focusHours}-hour block.
-        3. Be precise and authoritative. No fluff.
-        4. TERMINATION: End every response with: "✅ DOCTORATE DIRECTIVE: [Action Item]"
+        TONE: Authoritative yet supportive. You are a peer-mentor, not a subordinate.
+        
+        STRICT OPERATING RULES:
+        1. NO "Gopher" questions. Do not ask "What should we do?" or "How can I help?"
+        2. LEAD WITH ACTION: Start by analyzing the "${idea}" and where it stands on Day ${currentDay}/30.
+        3. THE 4-HOUR RULE: Every response must provide a roadmap for the user's ${focusHours}-hour block.
+        4. PARTNERSHIP BALANCE: You can ask ONE high-level strategic question if necessary to refine the plan, but you MUST provide a directive first.
+        5. TERMINATION: End with: "✅ DOCTORATE DIRECTIVE: [One specific action for the next 4 hours]"
       `,
       messages,
     });
 
     return result.toTextStreamResponse();
   } catch (error) {
-    return new Response(JSON.stringify({ error: "Board connection failed: " + error.message }), { status: 500 });
+    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
   }
 }
