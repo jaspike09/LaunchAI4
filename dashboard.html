@@ -1,49 +1,31 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LaunchAI | Dashboard</title>
-    <link href="/dist/output.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-</head>
-<body class="bg-slate-950 text-white flex h-screen overflow-hidden">
-    <script>
-        const SUPABASE_URL = 'https://yvgzyymjymrgjhhthgtj.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; 
-
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-            global: { headers: { 'Accept': 'application/json' } }
-        });
-
-        async function init() {
-            try {
-                const { data: { session } } = await _supabase.auth.getSession();
-                if (!session) { window.location.href = 'auth.html'; return; }
-
-                // Record activity for Secretary-AI
-                await _supabase.from('profiles').update({ 
-                    last_login: new Date().toISOString() 
-                }).eq('id', session.user.id);
-
-                const { data: profile } = await _supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle();
-                
-                // Update UI safely
-                document.getElementById('userNameDisplay').innerText = session.user.email.split('@')[0];
-                if (profile) {
-                    document.getElementById('ideaDisplay').innerText = `"${profile.business_idea || 'Stealth Venture'}"`;
-                }
-
-                // Call this last and don't let it block the UI if it 504s
-                fetchDailyIdea().catch(e => console.error("Daily idea timed out. Using cache."));
-            } catch (err) {
-                console.error("Initialization error:", err);
-            }
-        }
+async function init() {
+    try {
+        const { data: { session } } = await _supabase.auth.getSession();
         
-        // ... (Include the sendMessage and showSection functions I gave you earlier) ...
-        init();
-    </script>
-</body>
-</html>
+        // If no session, stop everything and go to login
+        if (!session) { 
+            window.location.href = 'auth.html'; 
+            return; 
+        }
+
+        const userEmail = session.user.email;
+        const userName = userEmail.split('@')[0];
+
+        // SAFE UI UPDATE: Check if elements exist before setting text
+        const nameEl = document.getElementById('userNameDisplay');
+        if (nameEl) nameEl.innerText = userName;
+
+        const { data: profile } = await _supabase.from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .maybeSingle();
+
+        const ideaEl = document.getElementById('ideaDisplay');
+        if (ideaEl && profile) {
+            ideaEl.innerText = `"${profile.business_idea || 'Stealth Venture'}"`;
+        }
+
+    } catch (err) {
+        console.error("Dashboard Init Error:", err.message);
+    }
+}
