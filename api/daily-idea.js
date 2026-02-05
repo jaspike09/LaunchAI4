@@ -15,7 +15,7 @@ export default async function handler(req) {
   try {
     const { text } = await generateText({
       // FIX: Using the versioned string to prevent 404
-      model: google('gemini-1.5-flash'), 
+      model: google('gemini-1.5-pro'), 
       system: `
         You are the Opportunity Scout & Managing Partner. 
         TONE: Authoritative, elite, and execution-focused.
