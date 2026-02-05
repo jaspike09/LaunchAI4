@@ -41,29 +41,22 @@
         
         <p id="message" class="mt-4 text-center text-xs font-medium min-h-[1rem]"></p>
     </div>
-    // --- 1. CONFIGURATION ---
-const SUPABASE_URL = 'https://yvgzyymjymrgjhhthgtj.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // Your existing key
-
-// ADD THIS OPTIONS OBJECT:
-const supabaseOptions = {
-    global: {
-        headers: { 'Accept': 'application/json' }
-    }
-};
-
-// Update this line to include the options
-const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, supabaseOptions);
 
     <script>
         // --- 1. CONFIGURATION ---
         const SUPABASE_URL = 'https://yvgzyymjymrgjhhthgtj.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2Z3p5eW1qeW1yZ2poaHRoZ3RqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5OTc1MzIsImV4cCI6MjA4NTU3MzUzMn0.814FVde267XILaw-VA76Yuk6Y6BVQpCr_5fAF2KtBFw';
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        // This options object fixes the 406 "Not Acceptable" error
         const supabaseOptions = {
-    global: {
-        headers: { 'Accept': 'application/json' }
+            global: {
+                headers: { 'Accept': 'application/json' }
+            }
+        };
 
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, supabaseOptions);
+
+        // --- 2. DOM ELEMENTS ---
         const authForm = document.getElementById('authForm');
         const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
@@ -74,7 +67,7 @@ const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, supabaseOpti
 
         let isSignUp = false;
 
-        // --- 2. TOGGLE LOGIC ---
+        // --- 3. TOGGLE LOGIC ---
         toggleMode.addEventListener('click', () => {
             isSignUp = !isSignUp;
             authTitle.innerText = isSignUp ? "Create your Architect account." : "Secure Executive Access";
@@ -82,7 +75,7 @@ const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, supabaseOpti
             toggleMode.innerHTML = isSignUp ? "Already have access? <span class='text-blue-400'>Log In</span>" : "Need an account? <span class='text-blue-400'>Sign Up</span>";
         });
 
-        // --- 3. AUTH LOGIC ---
+        // --- 4. AUTH LOGIC ---
         authForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             messagePara.innerText = "Authenticating...";
@@ -93,7 +86,15 @@ const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, supabaseOpti
 
             try {
                 if (isSignUp) {
-                    const { data, error } = await _supabase.auth.signUp({ email, password });
+                    const { data, error } = await _supabase.auth.signUp({ 
+                        email, 
+                        password,
+                        options: {
+                            data: {
+                                initial_idea: localStorage.getItem('userBusinessIdea') || 'New Venture'
+                            }
+                        }
+                    });
                     if (error) throw error;
                     messagePara.innerText = "Check your email for the confirmation link!";
                     messagePara.className = "mt-4 text-center text-xs font-medium text-green-400";
@@ -101,7 +102,7 @@ const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, supabaseOpti
                     const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
                     if (error) throw error;
                     
-                    // SUCCESS: Redirect to the Briefing (Success Page)
+                    // On success, go to dashboard
                     window.location.href = 'success.html';
                 }
             } catch (err) {
