@@ -19,7 +19,8 @@ export default async function handler(req) {
     const isEarlyPhase = (currentDay || 1) <= 7;
 
     const result = await streamText({
-     model: google('gemini-1.5-flash-8b'), // The absolute fastest, most reliable model for connectivity tests
+     model: google('// Change from 'gemini-1.5-pro' to:
+model: google('gemini-1.5-flash'), // The absolute fastest, most reliable model for connectivity tests
       system: `
         IDENTITY: You are ${agent}, a Managing Partner & DBA. 
         CONTEXT: Day ${currentDay}/30 of a high-stakes venture launch for "${idea}".
