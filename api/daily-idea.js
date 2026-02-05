@@ -1,7 +1,11 @@
 import { google } from '@ai-sdk/google';
 import { generateText } from 'ai';
 import { createClient } from '@supabase/supabase-js';
+export const config = {
+  runtime: 'edge',
+};
 
+// ... rest of your code
 export default async function handler(req) {
 // Inside your API files:
 const supabaseUrl = process.env.SUPABASE_URL;
