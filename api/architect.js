@@ -27,7 +27,7 @@ export default async function handler(req) {
       : "PHASE: SUSTAIN. The user has momentum. Provide deeper academic analysis and collaborate on complex strategy.";
 
     const result = await streamText({
-      model: google('gemini-1.5-pro-latest'),
+      model: google('gemini-2.0-flash-exp'), // Or 'gemini-1.5-flash' if you want speed over depth
       providerOptions: {
         google: { thinkingLevel: 'medium' },
       },
