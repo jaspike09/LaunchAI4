@@ -1,11 +1,5 @@
-import OpenAI from 'openai';
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
 export const config = {
-  runtime: 'edge', // Using Edge for faster streaming
+  runtime: 'edge',
 };
 
 export default async function handler(req) {
@@ -16,38 +10,38 @@ export default async function handler(req) {
   try {
     const { messages, agent, idea, capital, hours } = await req.json();
 
-    // The "System Prompt" defines the AI's personality based on the GEMS Board member selected
     const systemPrompt = `You are ${agent} on the LaunchAI-4 GEMS Board. 
     The venture vision is: "${idea}". 
     The founder has ${capital} capital and ${hours} hours/week.
     Give blunt, high-leverage advice for the year 2026.`;
 
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini', // Faster and cheaper for 2026 audits
-      stream: true,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        ...messages
-      ],
-    });
-
-    // Create a ReadableStream to pipe the AI tokens directly to your dashboard
-    const stream = new ReadableStream({
-      async start(controller) {
-        const encoder = new TextEncoder();
-        for await (const chunk of response) {
-          const content = chunk.choices[0]?.delta?.content || "";
-          controller.enqueue(encoder.encode(content));
-        }
-        controller.close();
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
       },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        stream: true,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          ...messages
+        ],
+      }),
     });
 
-    return new Response(stream, {
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("OpenAI Error:", errorData);
+      return new Response(JSON.stringify({ error: "OpenAI Uplink Failed" }), { status: 500 });
+    }
+
+    // This pipes the OpenAI stream directly back to your Dashboard.html
+    return new Response(response.body, {
       headers: {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
       },
     });
 
