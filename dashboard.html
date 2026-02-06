@@ -1,146 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LaunchAI | Executive Board</title>
-    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
-    <link href="/dist/output.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        .sidebar-link:hover { background: rgba(59, 130, 246, 0.1); color: #60a5fa; }
-        .active-link { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border-right: 4px solid #3b82f6; }
-        .glass-panel { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05); }
-        .score-glow-red { text-shadow: 0 0 20px #ef4444; color: #ef4444; }
-        .score-glow-green { text-shadow: 0 0 20px #22c55e; color: #22c55e; }
-    </style>
-</head>
-<body class="bg-slate-950 text-white font-sans flex h-screen overflow-hidden">
-    <div id="briefingOverlay" class="fixed inset-0 z-[100] bg-slate-950 flex items-center justify-center p-6 hidden">
-    <div class="max-w-4xl w-full glass-panel p-8 rounded-[40px] text-center border border-blue-500/30 shadow-2xl shadow-blue-500/10">
-        <div class="inline-block px-3 py-1 mb-6 text-[10px] font-bold tracking-widest text-blue-400 uppercase bg-blue-400/10 rounded-full border border-blue-400/20">
-            Incoming Transmission: MentorAI
-        </div>
-        
-        <div class="relative aspect-video rounded-3xl overflow-hidden bg-black mb-8 border border-white/10 shadow-inner">
-            <video id="demoVideo" class="w-full h-full object-cover">
-                <source src="mentor-briefing.mp4" type="video/mp4">
-            </video>
-            <div id="subtitleBox" class="absolute bottom-8 left-0 right-0 px-12 pointer-events-none">
-                <p id="mentorSubtitles" class="text-xl font-bold text-white drop-shadow-lg italic"></p>
-            </div>
-        </div>
-
-        <button id="closeBriefing" class="hidden bg-blue-600 px-10 py-4 rounded-2xl font-black hover:bg-blue-500 transition-all transform active:scale-95 shadow-lg shadow-blue-600/20">
-            I UNDERSTAND THE MISSION
-        </button>
-    </div>
-</div>
-
-    <aside class="w-72 border-r border-white/5 flex flex-col bg-slate-950">
-        <div class="p-6 text-2xl font-bold tracking-tighter border-b border-white/5">
-            Launch<span class="text-blue-500">AI</span>
-        </div>
-        <nav class="flex-1 mt-4 space-y-1">
-            <button onclick="showSection('overview')" id="link-overview" class="w-full sidebar-link active-link flex items-center px-6 py-3 transition text-left">
-                <i class="fa-solid fa-rocket mr-3 text-blue-500"></i> Mission Control
-            </button>
-            
-            <div class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest opacity-50">The Board</div>
-            
-            <button onclick="openChat('MentorAI')" class="w-full sidebar-link flex items-center px-6 py-3 transition text-left">
-                <i class="fa-solid fa-user-tie text-blue-400 mr-3 w-5"></i> MentorAI
-            </button>
-            <button onclick="openChat('MarketingAI')" class="w-full sidebar-link flex items-center px-6 py-3 transition text-left">
-                <i class="fa-solid fa-bullhorn text-orange-400 mr-3 w-5"></i> MarketingAI
-            </button>
-            <button onclick="openChat('LawyerAI')" class="w-full sidebar-link flex items-center px-6 py-3 transition text-left">
-                <i class="fa-solid fa-gavel text-red-400 mr-3 w-5"></i> LawyerAI
-            </button>
-            <button onclick="openChat('AccountantAI')" class="w-full sidebar-link flex items-center px-6 py-3 transition text-left">
-                <i class="fa-solid fa-file-invoice-dollar text-green-400 mr-3 w-5"></i> AccountantAI
-            </button>
-        </nav>
-        <div class="p-6 border-t border-white/5">
-            <button onclick="logout()" class="w-full py-2 border border-slate-700 rounded-lg text-[10px] text-slate-400 uppercase font-bold hover:bg-red-500/10 transition">Terminate Session</button>
-        </div>
-    </aside>
-
-    <main class="flex-1 flex flex-col bg-slate-900">
-        <header class="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-slate-950/50">
-            <div class="flex items-center gap-4">
-                <h2 id="sectionTitle" class="text-lg font-semibold">Mission Control</h2>
-                <span id="dayBadge" class="bg-blue-500/20 text-blue-400 text-[10px] px-2 py-1 rounded border border-blue-500/30 font-bold uppercase">Ready for Deployment</span>
-            </div>
-            <div id="userDisplay" class="flex items-center gap-4">
-                <p id="userNameDisplay" class="text-xs font-bold text-blue-400 uppercase tracking-tighter">Loading Officer...</p>
-                <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center font-bold text-xs">HQ</div>
-            </div>
-        </header>
-
-        <div class="flex-1 overflow-y-auto p-8">
-            <div id="overview" class="space-y-6">
-                <div class="glass-panel p-8 rounded-3xl border border-blue-500/20 relative overflow-hidden">
-                    <div class="relative z-10 flex justify-between items-center">
-                        <div>
-                            <h4 class="text-slate-500 text-[10px] font-bold uppercase tracking-widest mb-1">Current Venture Idea</h4>
-                            <h2 id="ideaDisplay" class="text-2xl font-bold italic text-white leading-tight">"Detecting Vision..."</h2>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-[10px] text-slate-500 font-bold uppercase">Audit Score</p>
-                            <h2 id="auditScoreDisplay" class="text-5xl font-black">--</h2>
-                        </div>
-                    </div>
-                </div>
-                <div class="mt-8">
-    <div class="flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2">
-        <span>Venture Progress</span>
-        <span id="progressPercent">0%</span>
-    </div>
-    <div class="w-full h-2 bg-white/5 rounded-full overflow-hidden border border-white/5">
-        <div id="progressBar" class="h-full bg-blue-600 transition-all duration-1000" style="width: 0%"></div>
-    </div>
-</div>
-
-                <div id="dailyIdeaContainer" class="bg-gradient-to-br from-blue-600/20 to-purple-600/20 p-6 rounded-3xl border border-blue-500/30">
-                    <h4 class="text-blue-400 text-[10px] font-bold uppercase tracking-widest mb-2 italic">💡 Daily Opportunity Scout</h4>
-                    <p id="dailyIdeaText" class="text-sm font-medium leading-relaxed italic">Synchronizing with 2026 market trends...</p>
-                </div>
-            </div>
-
-            <div id="chatArea" class="hidden flex flex-col h-full max-h-[calc(100vh-160px)]">
-                <div id="chatBox" class="flex-1 glass-panel rounded-2xl p-6 mb-4 overflow-y-auto space-y-4 border border-white/5"></div>
-                <div class="flex gap-3 pb-4">
-                    <input type="text" id="chatInput" placeholder="Command the board..." class="flex-1 bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-blue-500 transition text-sm">
-                    <button onclick="sendMessage()" class="bg-blue-600 px-8 rounded-2xl font-bold hover:bg-blue-500 active:scale-95 transition shadow-lg shadow-blue-600/20 uppercase text-xs tracking-widest">SEND</button>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <script>
-       const SUPABASE_URL = 'https://yvgzyymjymrgjhhthgtj.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2Z3p5eW1qeW1yZ2poaHRoZ3RqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5OTc1MzIsImV4cCI6MjA4NTU3MzUzMn0.814FVde267XILaw-VA76Yuk6Y6BVQpCr_5fAF2KtBFw'; // MUST REPLACE THIS
+<script>
+const SUPABASE_URL = 'https://yvgzyymjymrgjhhthgtj.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2Z3p5eW1qeW1yZ2poaHRoZ3RqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5OTc1MzIsImV4cCI6MjA4NTU3MzUzMn0.814FVde267XILaw-VA76Yuk6Y6BVQpCr_5fAF2KtBFw'; 
 
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentProfile = null;
 let currentAgent = "MentorAI";
 
+// 1. INITIALIZE HQ
 async function init() {
     try {
-        // 1. Auth Check
         const { data: { session }, error: authError } = await _supabase.auth.getSession();
         if (!session || authError) {
             window.location.href = 'auth.html';
             return;
         }
 
-        // 2. Set UI for User
         document.getElementById('userNameDisplay').innerText = session.user.email.split('@')[0];
 
-        // 3. Fetch Profile Data
         const { data: profile } = await _supabase
             .from('profiles')
             .select('*')
@@ -152,22 +29,15 @@ async function init() {
             document.getElementById('ideaDisplay').innerText = `"${profile.business_idea}"`;
             document.getElementById('auditScoreDisplay').innerText = profile.last_audit_score || "--";
             
-            // Score Glow Logic
             const scoreEl = document.getElementById('auditScoreDisplay');
             scoreEl.classList.remove('score-glow-red', 'score-glow-green');
             scoreEl.classList.add(profile.last_audit_score < 55 ? 'score-glow-red' : 'score-glow-green');
 
-            // 4. Trigger the Mentor Briefing if not seen
             if (!profile.has_seen_briefing) {
                 handleBriefing(profile, session.user);
             }
-        } else {
-            // Fallback for new users without a profile record yet
-            const cachedIdea = localStorage.getItem('userBusinessIdea');
-            if (cachedIdea) document.getElementById('ideaDisplay').innerText = `"${cachedIdea}"`;
         }
 
-        // 5. Update UI Components
         updateProgressUI(session.user.id);
         fetchDailyIdea();
 
@@ -176,6 +46,7 @@ async function init() {
     }
 }
 
+// 2. MENTOR BRIEFING LOGIC
 async function handleBriefing(profile, user) {
     const overlay = document.getElementById('briefingOverlay');
     const video = document.getElementById('demoVideo');
@@ -183,12 +54,10 @@ async function handleBriefing(profile, user) {
 
     overlay.classList.remove('hidden');
     
-    // Determine the assignment text based on score
     const assignmentText = (profile.last_audit_score || 0) < 50 
         ? "Pivot your business model to lower overhead." 
         : "Begin your Market Deep Dive with MarketingAI.";
 
-    // Video Sequence
     setTimeout(() => {
         video.play().catch(e => console.warn("Autoplay blocked"));
         updateSubtitles("To speak with the GEMS Board members, there are a couple things we must complete!", 4000);
@@ -225,72 +94,18 @@ function updateSubtitles(text, duration) {
     }, duration);
 }
 
-async function updateProgressUI(userId) {
-    const { data: progress } = await _supabase
-        .from('launch_progress')
-        .select('*')
-        .eq('user_id', userId);
-
-    if (progress) {
-        const totalSteps = 5;
-        const completed = progress.filter(p => p.status === 'completed').length;
-        const percent = Math.round((completed / totalSteps) * 100);
-        
-        document.getElementById('progressBar').style.width = `${percent}%`;
-        document.getElementById('progressPercent').innerText = `${percent}%`;
-        document.getElementById('dayBadge').innerText = `${completed} / ${totalSteps} Milestones Reached`;
-    }
-}
-
-async function fetchDailyIdea() {
-    try {
-        const res = await fetch('/api/daily-idea');
-        const data = await res.json();
-        if (data.score) {
-            document.getElementById('dailyIdeaText').innerText = data.pivot || data.verdict;
-        }
-    } catch (e) { console.warn("Daily Scout Offline."); }
-}
-
-// ... (Rest of your sendMessage, showSection, and logout functions) ...
-function showSection(id) {
-    document.getElementById('overview').classList.toggle('hidden', id !== 'overview');
-    document.getElementById('chatArea').classList.toggle('hidden', id !== 'chatArea');
-    document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active-link'));
-    if(id === 'overview') document.getElementById('link-overview').classList.add('active-link');
-}
-
-function openChat(agent) {
-    currentAgent = agent;
-    showSection('chatArea');
-    document.getElementById('sectionTitle').innerText = agent;
-}
-
+// 3. CHAT & GEMS BOARD LOGIC
 async function sendMessage() {
-   async function sendMessage() {
     const input = document.getElementById('chatInput');
     const chatBox = document.getElementById('chatBox');
     const text = input.value.trim();
     if (!text) return;
 
-    // 1. UI: User Message
-    chatBox.innerHTML += `
-        <div class="flex justify-end mb-4">
-            <div class="bg-blue-600/20 p-4 rounded-2xl border border-blue-500/30 max-w-[85%] text-sm">
-                ${text}
-            </div>
-        </div>`;
+    chatBox.innerHTML += `<div class="flex justify-end mb-4"><div class="bg-blue-600/20 p-4 rounded-2xl border border-blue-500/30 max-w-[85%] text-sm">${text}</div></div>`;
     input.value = "";
     
-    // 2. UI: AI Thinking State
     const aiId = 'ai-' + Date.now();
-    chatBox.innerHTML += `
-        <div class="flex justify-start mb-4">
-            <div class="glass-panel p-4 rounded-2xl border border-white/10 max-w-[85%] text-sm">
-                <b class="text-blue-400 block mb-1 text-[10px] uppercase tracking-widest">${currentAgent}</b>
-                <span id="${aiId}" class="leading-relaxed">...</span>
-            </div>
-        </div>`;
+    chatBox.innerHTML += `<div class="flex justify-start mb-4"><div class="glass-panel p-4 rounded-2xl border border-white/10 max-w-[85%] text-sm"><b class="text-blue-400 block mb-1 text-[10px] uppercase tracking-widest">${currentAgent}</b><span id="${aiId}">...</span></div></div>`;
     chatBox.scrollTop = chatBox.scrollHeight;
 
     try {
@@ -300,108 +115,54 @@ async function sendMessage() {
             body: JSON.stringify({ 
                 messages: [{ role: 'user', content: text }],
                 agent: currentAgent,
-                idea: currentProfile?.business_idea || localStorage.getItem('userBusinessIdea'),
+                idea: currentProfile?.business_idea,
                 capital: currentProfile?.capital || "0",
                 hours: currentProfile?.focus_hours || "4"
             })
         });
 
-        if (!response.ok) throw new Error('Uplink Failure');
-
         const reader = response.body.getReader();
-        const textTarget = document.getElementById(aiId);
-        textTarget.innerText = ""; // Clear the "..."
-
         const decoder = new TextDecoder();
-        
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-
-            const chunk = decoder.decode(value, { stream: true });
-            
-            // This logic cleans the OpenAI stream format if you use the direct fetch method
-            const lines = chunk.split('\n');
-            for (const line of lines) {
-                if (line.trim().startsWith('data: ')) {
-                    const data = line.trim().substring(6);
-                    if (data === '[DONE]') break;
-                    try {
-                        const json = JSON.parse(data);
-                        const content = json.choices[0]?.delta?.content || "";
-                        textTarget.innerText += content;
-                    } catch (e) { /* skip partial JSON chunks */ }
-                } else if (!line.trim().startsWith('data:')) {
-                    // Fallback for non-SSE formatted streams
-                    textTarget.innerText += line;
-                }
-            }
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
-    } catch (e) { 
-        console.error(e);
-        document.getElementById(aiId).innerText = "Uplink Terminated. Verify API Key and Route."; 
-    }
-}
-
-async function logout() {
-    await _supabase.auth.signOut();
-    window.location.href = 'index.html';
-}
-
-// Global UI Handlers
-function showSection(id) {
-    document.getElementById('overview').classList.toggle('hidden', id !== 'overview');
-    document.getElementById('chatArea').classList.toggle('hidden', id !== 'chatArea');
-    document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active-link'));
-    if(id === 'overview') document.getElementById('link-overview').classList.add('active-link');
-}
-
-function openChat(agent) {
-    currentAgent = agent;
-    showSection('chatArea');
-    document.getElementById('sectionTitle').innerText = agent;
-    // Clear previous chat or load history here if needed
-    document.getElementById('chatBox').innerHTML = ''; 
-    document.getElementById('chatBox').innerHTML += `
-        <div class="text-[10px] text-center text-slate-500 uppercase tracking-[0.2em] my-4">
-            Secure Encrypted Line Established: ${agent}
-        </div>`;
-}
-
-// Initialize on load
-init();
-
-    chatBox.innerHTML += `<div class="flex justify-start mb-4"><div class="glass-panel p-4 rounded-2xl border border-white/10 max-w-[85%] text-sm">
-        <b class="text-blue-400 block mb-1 text-[10px] uppercase tracking-widest">${currentAgent}</b>
-        <span id="${aiId}">...</span>
-    </div></div>`;
-    chatBox.scrollTop = chatBox.scrollHeight;
-
-    try {
-        const response = await fetch('/api/architect', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                messages: [{ role: 'user', content: text }],
-                agent: currentAgent,
-                idea: currentProfile?.business_idea || localStorage.getItem('userBusinessIdea'),
-                capital: currentProfile?.capital || "0",
-                hours: currentProfile?.focus_hours || "4"
-            })
-        });
-
-        const reader = response.body.getReader();
         const textTarget = document.getElementById(aiId);
         textTarget.innerText = "";
 
         while (true) {
             const { done, value } = await reader.read();
             if (done) break;
-            textTarget.innerText += new TextDecoder().decode(value);
+            
+            const chunk = decoder.decode(value);
+            const lines = chunk.split('\n');
+            
+            for (const line of lines) {
+                if (line.startsWith('data: ')) {
+                    const dataStr = line.replace('data: ', '');
+                    if (dataStr === '[DONE]') break;
+                    try {
+                        const json = JSON.parse(dataStr);
+                        textTarget.innerText += json.choices[0]?.delta?.content || "";
+                    } catch (e) {}
+                } else if (line.trim().length > 0 && !line.startsWith('data:')) {
+                    textTarget.innerText += line;
+                }
+            }
             chatBox.scrollTop = chatBox.scrollHeight;
         }
     } catch (e) { document.getElementById(aiId).innerText = "Uplink Terminated."; }
+}
+
+// 4. NAVIGATION
+function showSection(id) {
+    document.getElementById('overview').classList.toggle('hidden', id !== 'overview');
+    document.getElementById('chatArea').classList.toggle('hidden', id !== 'chatArea');
+    document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active-link'));
+    if(id === 'overview') document.getElementById('link-overview').classList.add('active-link');
+}
+
+function openChat(agent) {
+    currentAgent = agent;
+    showSection('chatArea');
+    document.getElementById('sectionTitle').innerText = agent;
+    document.getElementById('chatBox').innerHTML = `<div class="text-[10px] text-center text-slate-500 uppercase tracking-[0.2em] my-4">Secure Line: ${agent}</div>`;
 }
 
 async function logout() {
@@ -409,8 +170,5 @@ async function logout() {
     window.location.href = 'index.html';
 }
 
-// Initialize on load
 init();
-    </script>
-</body>
-</html>
+</script>
