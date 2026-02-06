@@ -127,9 +127,21 @@
 
         let currentProfile = null;
         let currentAgent = "MentorAI";
+async function init() {
+    // Force a session check immediately instead of waiting for the listener
+    const { data: { session }, error } = await _supabase.auth.getSession();
+    
+    if (!session || error) {
+        window.location.href = 'auth.html';
+        return;
+    }
 
-        async function init() {
-            // Inside your init() function in dashboard.html
+    // Initialize the Mentor Video only after Auth is confirmed
+    const video = document.getElementById('demoVideo');
+    if (video) {
+        video.play().catch(e => console.log("Autoplay blocked, waiting for interaction"));
+    }
+        
 const { data: progress } = await _supabase
     .from('launch_progress')
     .select('*')
