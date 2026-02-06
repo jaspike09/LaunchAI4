@@ -1,6 +1,27 @@
 import { google } from '@ai-sdk/google';
 import { streamText } from 'ai';
+import { secretaryCheck } from './secretary-check.js';
 
+export default async function handler(req, res) {
+  if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
+    try {
+    const { idea, userId } = req.body;
+
+    // 1. Trigger the Secretary AI first
+    const isViable = await secretaryCheck(idea); 
+    if (!isViable) {
+      return res.status(400).json({ status: "Rejected", message: "Idea lacks market friction." });
+    }
+
+    // 2. Hand off to Architect
+    // Ensure you are using absolute paths or Vercel helper functions here
+    return res.status(200).json({ status: "Success", mission: "Initialized" });
+
+  } catch (error) {
+    console.error("Orchestration Error:", error);
+    return res.status(500).json({ error: "Mission Control Internal Error" });
+  }
+}
 export const config = { runtime: 'edge' };
 
 export default async function handler(req) {
