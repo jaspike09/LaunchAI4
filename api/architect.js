@@ -1,49 +1,58 @@
-import { google } from '@ai-sdk/google';
-import { streamText } from 'ai';
+import OpenAI from 'openai';
 
-export const config = { runtime: 'edge' };
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+export const config = {
+  runtime: 'edge', // Using Edge for faster streaming
+};
 
 export default async function handler(req) {
-  if (req.method !== 'POST') return new Response('Method Not Allowed', { status: 405 });
+  if (req.method !== 'POST') {
+    return new Response('Method Not Allowed', { status: 405 });
+  }
 
   try {
-    const { messages, agent, idea, capital, hours, currentDay } = await req.json();
+    const { messages, agent, idea, capital, hours } = await req.json();
 
-    // Define the distinct "Brain" for each GEM
-    const personas = {
-      MentorAI: "Focus on 30-day speed and high-level strategy. Be aggressive.",
-      MarketingAI: "Focus on virality, CAC (Customer Acquisition Cost), and Reels/Ads.",
-      LawyerAI: "Focus on liability, terms of service, and risk mitigation.",
-      AccountantAI: "Focus on the 'Chaching'. Tracking expenses like printers and margins.",
-      SecretaryAI: "Focus on organization, drafting emails, and setting appointments."
-    };
+    // The "System Prompt" defines the AI's personality based on the GEMS Board member selected
+    const systemPrompt = `You are ${agent} on the LaunchAI-4 GEMS Board. 
+    The venture vision is: "${idea}". 
+    The founder has ${capital} capital and ${hours} hours/week.
+    Give blunt, high-leverage advice for the year 2026.`;
 
-    const selectedPersona = personas[agent] || personas.MentorAI;
-
-    const result = await streamText({
-      model: google('gemini-1.5-flash'),
-      system: `
-        IDENTITY: You are ${agent}. 
-        MISSION: ${selectedPersona}
-        
-        USER DATA:
-        - Idea: "${idea}"
-        - Capital: $${capital || 0}
-        - Time: ${hours || 4} hours/day
-        - Phase: Day ${currentDay || 1}
-        
-        RULES:
-        1. Never break character.
-        2. Give tasks that fit into their ${hours}-hour window.
-        3. If they mention buying something (like a printer), AccountantAI should record it.
-        4. If they have a meeting, SecretaryAI should offer to draft the email.
-        5. Every response MUST end with: "NEXT ACTION: [One concrete step]"
-      `,
-      messages,
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o-mini', // Faster and cheaper for 2026 audits
+      stream: true,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        ...messages
+      ],
     });
 
-    return result.toTextStreamResponse();
+    // Create a ReadableStream to pipe the AI tokens directly to your dashboard
+    const stream = new ReadableStream({
+      async start(controller) {
+        const encoder = new TextEncoder();
+        for await (const chunk of response) {
+          const content = chunk.choices[0]?.delta?.content || "";
+          controller.enqueue(encoder.encode(content));
+        }
+        controller.close();
+      },
+    });
+
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      },
+    });
+
   } catch (error) {
-    return new Response(JSON.stringify({ error: "Uplink Failure" }), { status: 500 });
+    console.error("Architect AI Error:", error);
+    return new Response(JSON.stringify({ error: "Uplink Lost." }), { status: 500 });
   }
 }
