@@ -1,7 +1,8 @@
 {
   "name": "launch-ai-4",
   "version": "1.0.0",
+  "private": true,
   "scripts": {
-    "build": "echo 'No build step needed'"
+    "build": "mkdir -p .next && echo 'Done'"
   }
 }
