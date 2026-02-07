@@ -5,35 +5,50 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
     <style>
-        .glass { background: rgba(255,255,255,0.02); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
-        .needle { transition: transform 2s cubic-bezier(0.17, 0.67, 0.83, 0.67); transform-origin: bottom center; }
+        .video-docker video { position: fixed; top: 50%; left: 50%; min-width: 100%; min-height: 100%; width: auto; height: auto; z-index: -100; transform: translateX(-50%) translateY(-50%); filter: brightness(0.3) grayscale(0.5); }
+        .glass { background: rgba(0,0,0,0.6); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); }
     </style>
 </head>
-<body class="bg-[#020617] text-white min-h-screen font-sans">
-    <nav class="p-6 flex justify-between items-center max-w-6xl mx-auto">
-        <div class="font-black text-xl italic italic">LAUNCH<span class="text-blue-500">AI_4</span></div>
-        <div class="text-[10px] bg-blue-500/10 text-blue-400 px-3 py-1 rounded-full border border-blue-500/20 font-bold">2026 NETWORK ACTIVE</div>
-    </nav>
+<body class="bg-black text-white overflow-hidden">
+    <div class="video-docker">
+        <video autoplay muted loop playsinline>
+            <source src="MentorAI%20vid.mp4" type="video/mp4">
+        </video>
+    </div>
 
-    <section class="flex flex-col items-center pt-20 px-6">
-        <h1 class="text-7xl font-black mb-4 tracking-tighter text-center">Audit Your <span class="text-blue-500">Venture.</span></h1>
-        <p class="text-slate-400 mb-12 text-center max-w-xl">Upload your idea to the GEMS Board for a real-time 2026 Neural Market Audit.</p>
-
-        <div class="w-full max-w-2xl glass p-2 rounded-3xl flex">
-            <input type="text" id="userIdea" placeholder="Enter your business idea..." class="bg-transparent p-6 flex-1 outline-none text-lg">
-            <button onclick="runAudit()" class="bg-blue-600 hover:bg-blue-500 px-10 rounded-2xl font-black transition-all">AUDIT</button>
-        </div>
-
-        <div id="auditSection" class="hidden mt-16 flex flex-col items-center">
-            <div class="relative w-64 h-32 overflow-hidden">
-                <div class="w-64 h-64 border-[16px] border-slate-900 rounded-full"></div>
-                <div id="needle" class="absolute bottom-0 left-1/2 w-1.5 h-28 bg-blue-500 needle" style="transform: translateX(-50%) rotate(-90deg)"></div>
+    <section class="h-screen flex flex-col items-center justify-center px-6 relative z-10">
+        <div class="glass p-12 rounded-[3rem] max-w-3xl w-full text-center border-blue-500/20">
+            <h1 class="text-6xl font-black mb-4 tracking-tighter">Audit Your <span class="text-blue-500">2026 Venture.</span></h1>
+            <p class="text-slate-300 mb-10 text-lg">Connect to the GEMS Board for a neural market simulation.</p>
+            
+            <div class="flex gap-2 bg-white/5 p-2 rounded-2xl border border-white/10">
+                <input type="text" id="userIdea" placeholder="Describe your business..." class="bg-transparent p-4 flex-1 outline-none">
+                <button onclick="startAudit()" class="bg-blue-600 px-8 py-4 rounded-xl font-black hover:bg-blue-500 transition-all">AUDIT</button>
             </div>
-            <div id="score" class="text-6xl font-black mt-6">0</div>
-            <div class="text-xs text-slate-500 uppercase tracking-widest mt-2">Neural Readiness Score</div>
-            <button onclick="window.location.href='/dashboard.html'" class="mt-12 bg-white text-black px-12 py-4 rounded-full font-black hover:scale-105 transition-transform">ACCESS THE BOARD</button>
+
+            <div id="auditStatus" class="hidden mt-8">
+                <div class="text-4xl font-black text-blue-400" id="score">0%</div>
+                <div class="text-[10px] uppercase tracking-widest text-slate-500 mt-2">Neural Readiness Score</div>
+                <button onclick="window.location.href='dashboard.html'" class="mt-8 bg-white text-black px-10 py-3 rounded-full font-black text-xs uppercase">Enter Command Center</button>
+            </div>
         </div>
     </section>
+
+    <script>
+        function startAudit() {
+            const idea = document.getElementById('userIdea').value;
+            if(!idea) return;
+            localStorage.setItem('userIdea', idea);
+            document.getElementById('auditStatus').classList.remove('hidden');
+            let s = 0; let target = 87;
+            const int = setInterval(() => {
+                if(s >= target) clearInterval(int);
+                else { s++; document.getElementById('score').innerText = s + "%"; }
+            }, 40);
+        }
+    </script>
+</body>
+</html>
 
     <script>
         function runAudit() {
