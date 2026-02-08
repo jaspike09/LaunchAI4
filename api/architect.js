@@ -1,21 +1,17 @@
+// This tells Vercel to use the high-speed Edge runtime
 export const config = {
   runtime: 'edge',
 };
 
-export default async function handler(req) {
-  // Edge runtime requires us to check the method this way
-  if (req.method !== 'POST') {
-    return new Response('Method Not Allowed', { status: 405 });
-  }
-
+// We use "export async function POST" to match the Web Standard signature
+export async function POST(req) {
   try {
-    // This is the fix for the "req.json is not a function" error
-    const body = await req.json(); 
-    const { messages, agent, idea, tier } = body;
+    // In this modern signature, req.json() WILL work
+    const { messages, agent, idea, tier } = await req.json();
 
     const personas = {
-      SecretaryAI: "Gatekeeper. Professional, efficient. Welcomes the founder back.",
-      MentorAI: "Lead Advisor. Blunt, high-level strategy for 2026. ROI-obsessed.",
+      SecretaryAI: "Gatekeeper. Professional, efficient.",
+      MentorAI: "Lead Advisor. Blunt, high-level strategy for 2026.",
       MarketingAI: "Growth Hacker. Focuses on viral loops.",
       AccountantAI: "CFO. Analyzes fiscal liability.",
       LawyerAI: "Risk Manager. Identifies regulatory traps."
@@ -36,15 +32,19 @@ export default async function handler(req) {
       }),
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      return new Response(JSON.stringify(errorData), { status: response.status });
-    }
-
+    // Return the stream directly to the browser
     return new Response(response.body, {
-      headers: { 'Content-Type': 'text/event-stream' },
+      headers: { 
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      },
     });
+
   } catch (e) {
-    return new Response(JSON.stringify({ error: e.message }), { status: 500 });
+    return new Response(JSON.stringify({ error: e.message }), { 
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 }
