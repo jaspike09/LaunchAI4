@@ -1,8 +1,10 @@
 {
-  "name": "launch-ai-4",
+  "name": "launch-ai-5",
   "version": "1.0.0",
-  "private": true,
   "scripts": {
-    "build": "echo 'Build Success'"
+    "build": "exit 0"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0"
   }
 }
