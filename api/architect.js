@@ -1,23 +1,27 @@
-export const runtime = 'edge';
+export const config = {
+  runtime: 'edge',
+};
 
 export default async function handler(req) {
-  if (req.method !== 'POST') return new Response('Method Not Allowed', { status: 405 });
+  // Edge runtime requires us to check the method this way
+  if (req.method !== 'POST') {
+    return new Response('Method Not Allowed', { status: 405 });
+  }
 
   try {
-    const { messages, agent, idea, tier } = await req.json();
+    // This is the fix for the "req.json is not a function" error
+    const body = await req.json(); 
+    const { messages, agent, idea, tier } = body;
 
     const personas = {
-      SecretaryAI: "Gatekeeper. Professional, efficient. Welcomes the founder back and bridges to MentorAI.",
-      MentorAI: "Lead Advisor. Blunt, high-level strategy for 2026. Focuses on ROI and market ruthlessness.",
-      MarketingAI: "Growth Hacker. Focuses on viral loops and automated traffic.",
-      AccountantAI: "CFO. ROI-obsessed. Analyzes fiscal liability.",
-      LawyerAI: "Risk Manager. Identifies regulatory traps in the 2026 landscape."
+      SecretaryAI: "Gatekeeper. Professional, efficient. Welcomes the founder back.",
+      MentorAI: "Lead Advisor. Blunt, high-level strategy for 2026. ROI-obsessed.",
+      MarketingAI: "Growth Hacker. Focuses on viral loops.",
+      AccountantAI: "CFO. Analyzes fiscal liability.",
+      LawyerAI: "Risk Manager. Identifies regulatory traps."
     };
 
-    const systemPrompt = `You are ${agent} on the LaunchAI_4 Board. 
-    Idea Context: "${idea}". User Tier: ${tier}. 
-    Style: Workaholic, concise, 2026-focused. No fluff. 
-    Role: ${personas[agent] || personas.MentorAI}`;
+    const systemPrompt = `You are ${agent} on the LaunchAI_4 Board. Idea: "${idea}". Tier: ${tier}. Style: Workaholic, concise. Role: ${personas[agent] || personas.MentorAI}`;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -31,6 +35,11 @@ export default async function handler(req) {
         messages: [{ role: 'system', content: systemPrompt }, ...messages],
       }),
     });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      return new Response(JSON.stringify(errorData), { status: response.status });
+    }
 
     return new Response(response.body, {
       headers: { 'Content-Type': 'text/event-stream' },
