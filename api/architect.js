@@ -1,23 +1,22 @@
-// This tells Vercel to use the high-speed Edge runtime
-export const config = {
-  runtime: 'edge',
-};
+export const config = { runtime: 'edge' };
 
-// We use "export async function POST" to match the Web Standard signature
-export async function POST(req) {
+export default async function handler(req) {
+  if (req.method !== 'POST') return new Response('Method Not Allowed', { status: 405 });
+
   try {
-    // In this modern signature, req.json() WILL work
     const { messages, agent, idea, tier } = await req.json();
 
     const personas = {
-      SecretaryAI: "Gatekeeper. Professional, efficient.",
-      MentorAI: "Lead Advisor. Blunt, high-level strategy for 2026.",
-      MarketingAI: "Growth Hacker. Focuses on viral loops.",
-      AccountantAI: "CFO. Analyzes fiscal liability.",
-      LawyerAI: "Risk Manager. Identifies regulatory traps."
+      SecretaryAI: "Efficient gatekeeper. Briefs the founder on board status.",
+      MentorAI: "Brutal 2026 strategist. Gives a 30-day roadmap with specific dates and cut-throat advice.",
+      LawyerAI: "Risk specialist. Identifies 2026 regulatory traps.",
+      AccountantAI: "CFO. Ruthless about burn rates and ROI."
     };
 
-    const systemPrompt = `You are ${agent} on the LaunchAI_4 Board. Idea: "${idea}". Tier: ${tier}. Style: Workaholic, concise. Role: ${personas[agent] || personas.MentorAI}`;
+    const systemPrompt = `You are ${agent} on the LaunchAI_4 Board. 
+    Mission: "${idea}". Tier: ${tier}. 
+    Style: Workaholic, direct, actionable. 
+    Task: Provide a concrete 30-day launch roadmap. Focus on week-by-week execution.`;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -32,19 +31,10 @@ export async function POST(req) {
       }),
     });
 
-    // Return the stream directly to the browser
     return new Response(response.body, {
-      headers: { 
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
-      },
+      headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache' },
     });
-
   } catch (e) {
-    return new Response(JSON.stringify({ error: e.message }), { 
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return new Response(JSON.stringify({ error: e.message }), { status: 500 });
   }
 }
