@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "scripts": {
-  "build": "echo 'No build step needed for static files'"
-}
-    
+    "build": "echo 'Build Complete'"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0"
+  }
 }
