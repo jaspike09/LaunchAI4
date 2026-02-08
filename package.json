@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "mkdir -p .next && echo 'Done'"
-  }
+    "scripts": {
+  "build": "echo 'No build step needed for static files'"
+}
+    
 }
